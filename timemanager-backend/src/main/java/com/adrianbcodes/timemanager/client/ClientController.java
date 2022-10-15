@@ -1,7 +1,6 @@
 package com.adrianbcodes.timemanager.client;
 
 import com.adrianbcodes.timemanager.client.infrastucture.ClientWriteModel;
-import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.dto.ClientDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
