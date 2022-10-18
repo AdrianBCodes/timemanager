@@ -1,17 +1,29 @@
 import Client from "@/types/Client";
 import { ref } from "vue";
-import apiClient from "@/http-commons";
+import { useToast } from "primevue/usetoast";
+import Page from "@/types/Page";
 
-const getClients = () => {
-    const clients = ref<Client[]>([]);
+
+const getClients = (params?: string) => {
+    const page = ref<Page<Client>>();
+    const toast = useToast();
+    const clients = ref<Client[]>([])
     const error = ref(null)
+    const requestOptions = {
+        method: "GET",
+        headers: { "Content-Type": "application/json" }
+      };
     const load = async () => {
         try{
-            const res = await apiClient.get('/clients', {timeout: 1000})
-            clients.value = res.data
+            const res = await fetch('http://localhost:8080/api/v1/clients?' + params, requestOptions)
+            if(!res.ok){
+                throw Error('Failed to fetch Clients')
+            }
+            page.value = await res.json()
+            clients.value = page.value!.content
         } catch(e: any){
-            error.value = e.message;
-            console.log('error in clients fetch')
+            error.value = e;
+            toast.add({severity:'warn', summary: 'Warn Message', detail:e.message, life: 3000});
         }
     }
     return { clients, error, load}

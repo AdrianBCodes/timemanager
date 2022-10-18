@@ -3,5 +3,8 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer:{
     port: 3000
+  },
+  configureWebpack: {
+    devtool: 'source-map'
   }
 })

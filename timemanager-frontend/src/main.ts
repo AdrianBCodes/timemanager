@@ -5,12 +5,16 @@ import PrimeVue from 'primevue/config'
 import ButtonPrime from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import ToastService from 'primevue/toastservice'
+import Toast from 'primevue/toast';
 import DataTable from 'primevue/datatable';
 import Toolbar from 'primevue/toolbar';
 import Column from 'primevue/column';
 import ColumnGroup from 'primevue/columngroup';     //optional for column grouping
 import Row from 'primevue/row';                     //optional for row
 import Button from 'primevue/button';
+import Dialog from 'primevue/dialog';
+import Textarea from 'primevue/textarea';
+
 
 import 'primevue/resources/themes/bootstrap4-dark-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
@@ -29,4 +33,7 @@ app.component('ColumnGroup', ColumnGroup)
 app.component('Row', Row)
 app.component('Toolbar', Toolbar)
 app.component('Button', Button)
+app.component('Dialog', Dialog)
+app.component('Textarea', Textarea)
+app.component('Toast', Toast)
 app.mount('#app')

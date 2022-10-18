@@ -4,6 +4,7 @@
   <div class="content" :style="{'margin-left': sidebarWidth}">
   <router-view />
   </div>
+  <Toast position="bottom-right"/>
 </template>
 
 <script lang="ts">
