@@ -1,13 +1,29 @@
 package com.adrianbcodes.timemanager.client;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.*;
 
 public class FakeClientRepository implements ClientRepository{
 
     private final Map<Long, Client> clients = new HashMap<>();
+
+
+    // TODO
+    @Override
+    public Page<Client> getAllClientsByNameLikeAndNoteLike(String name, String note, Pageable pageable) {
+        return null;
+    }
+
     @Override
     public List<Client> getAllClients() {
         return clients.values().stream().toList();
+    }
+
+    @Override
+    public List<Client> getAllClientsDsl() {
+        return null;
     }
 
     @Override

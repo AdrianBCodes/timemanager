@@ -6,6 +6,7 @@ import com.adrianbcodes.timemanager.dto.ProjectNameDTO;
 import com.adrianbcodes.timemanager.project.Project;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -17,6 +18,8 @@ public class Client extends StatusAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
+
+    @NotBlank
     private String name;
     private String note;
     @OneToMany(mappedBy = "client", fetch = FetchType.LAZY)
@@ -73,11 +76,6 @@ public class Client extends StatusAudit {
         return new ClientDTO(
                 this.id,
                 this.name,
-                this.note,
-                this.projects
-                        .stream()
-                        .map(project ->
-                                new ProjectNameDTO(project.getId(),project.getName()))
-                        .collect(Collectors.toSet()));
+                this.note);
     }
 }

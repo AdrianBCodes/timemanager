@@ -17,9 +17,10 @@ public class TimemanagerApplication {
 	@Bean
 	CommandLineRunner commandLineRunner(ClientService clientService){
 		return args -> {
-			clientService.saveClient(new Client("ClientName1", "ClientNote1"));
-			clientService.saveClient(new Client("ClientName2", "ClientNote2"));
-			clientService.saveClient(new Client("ClientName3", "ClientNote3"));
+			clientService.saveClient(new Client("ClientName1", "aa"));
+			clientService.saveClient(new Client("ClientName3", "aa"));
+			clientService.saveClient(new Client("ClientName2", "bb"));
+			clientService.saveClient(new Client("ClientName4", "bb"));
 		};
 	}
 }

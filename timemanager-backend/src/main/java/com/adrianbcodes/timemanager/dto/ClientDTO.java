@@ -6,13 +6,11 @@ public class ClientDTO {
     private Long id;
     private String name;
     private String note;
-    private Set<ProjectNameDTO> projectNames;
 
-    public ClientDTO(Long id, String name, String note, Set<ProjectNameDTO> projectNames) {
+    public ClientDTO(Long id, String name, String note) {
         this.id = id;
         this.name = name;
         this.note = note;
-        this.projectNames = projectNames;
     }
 
     public Long getId() {
@@ -39,11 +37,4 @@ public class ClientDTO {
         this.note = note;
     }
 
-    public Set<ProjectNameDTO> getProjectNames() {
-        return projectNames;
-    }
-
-    public void setProjectNames(Set<ProjectNameDTO> projectNames) {
-        this.projectNames = projectNames;
-    }
 }
