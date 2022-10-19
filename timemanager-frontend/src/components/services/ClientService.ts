@@ -4,17 +4,18 @@ import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
 
 export default class ClientService {
+    toast = useToast();
 
-    getClients = (params?: string) => {
+    getClients = () => {
         const page = ref<Page<Client>>();
-        const toast = useToast();
+        const totalRecords = ref(0)
         const clients = ref<Client[]>([])
         const error = ref(null)
         const requestOptions = {
             method: "GET",
             headers: { "Content-Type": "application/json" }
           };
-        const load = async () => {
+        const load = async (params?: string) => {
             try{
                 const res = await fetch('http://localhost:8080/api/v1/clients?' + params, requestOptions)
                 if(!res.ok){
@@ -22,12 +23,13 @@ export default class ClientService {
                 }
                 page.value = await res.json()
                 clients.value = page.value!.content
+                totalRecords.value = page.value!.totalElements
             } catch(e: any){
                 error.value = e;
-                toast.add({severity:'warn', summary: 'Warn Message', detail:e.message, life: 3000});
+                this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { clients, error, load}
+        return { page, clients, totalRecords, error, load}
     }
 
     addClient = () => {
@@ -49,9 +51,10 @@ export default class ClientService {
                     throw Error('Adding client failed')
                 }
                 addedClient.value = await data.json()
+                this.toast.add({severity:'success', summary: 'Successful', detail: 'Client Added', life: 3000});
             } catch(e: any){
                 errorAdd.value = e.message;
-                console.log('error while adding client')
+                this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
         return { addedClient, errorAdd, loadAddClient }
@@ -76,9 +79,10 @@ export default class ClientService {
                     throw Error('Editing client failed')
                 }
                 editedClient.value = await data.json()
+                this.toast.add({severity:'success', summary: 'Successful', detail: 'Client Edited', life: 3000});
             } catch(e: any){
                 errorEdit.value = e.message;
-                console.log('error while editing client')
+                this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
         return { editedClient, errorEdit, loadEditClient }
@@ -99,9 +103,10 @@ export default class ClientService {
                     throw Error('Delete client failed')
                 }
                 resp.value = await data.json();
+                this.toast.add({severity:'success', summary: 'Successful', detail: 'Client Deleted', life: 3000});
             } catch(e: any){
                 errorDelete.value = e.message;
-                console.log('error while deleting client')
+                this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
         return {resp, errorDelete, loadDeleteClient }

@@ -14,6 +14,7 @@ import Row from 'primevue/row';                     //optional for row
 import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Textarea from 'primevue/textarea';
+import Paginator from 'primevue/paginator';
 
 
 import 'primevue/resources/themes/bootstrap4-dark-blue/theme.css'
@@ -36,4 +37,5 @@ app.component('Button', Button)
 app.component('Dialog', Dialog)
 app.component('Textarea', Textarea)
 app.component('Toast', Toast)
+app.component('Paginator', Paginator)
 app.mount('#app')

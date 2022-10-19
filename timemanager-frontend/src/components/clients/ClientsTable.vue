@@ -6,7 +6,7 @@
                 </template>
       </Toolbar>
 
-        <DataTable :value="clients" showGridlines stripedRows responsiveLayout="scroll" :scrollable="true" scrollHeight="flex">
+        <DataTable :value="clients" showGridlines stripedRows responsiveLayout="scroll" :scrollable="true" scrollHeight="flex" :rows="size">
           <template #header>
                 <div class="table-header-footer">
                     Clients
@@ -19,11 +19,10 @@
                         <Button icon="pi pi-trash" class="p-button-rounded p-button-warning" @click="confirmDeleteClient(slotProps.data.id)" />
                </template>
           </Column>
-
           <template #footer>
-            <div class="table-header-footer">
-                In total there are {{clients ? clients['length'] : 0 }} clients.
-            </div>
+            <Paginator  :rows="size" :totalRecords="totalRecords" @page="onPage($event)" :rowsPerPageOptions="[5,10,25,50,100]" 
+            currentPageReportTemplate="Showing {first} - {last} of {totalRecords} clients" 
+            template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown"/>
           </template>
         </DataTable>
 
@@ -65,13 +64,15 @@ import { useToast } from "primevue/usetoast";
 import ClientService from '../services/ClientService';
 
 export default defineComponent({
-  setup() {
+  setup() { 
+    const currentPage = ref(0)
+    const size = ref(5)
+    const pageParam = ref('page=' + currentPage.value)
+    const sizeParam = ref('size=' + size.value)
+    const params = ref<string>(pageParam.value + '&' + sizeParam.value)
     const clientService = ref(new ClientService());
-    const {clients, error, load} = clientService.value.getClients()
-    load();
-    watch(error, () => {
-        console.log('error from watch in clients')
-    })
+    const {clients, totalRecords , error, load} = clientService.value.getClients()
+    load(params.value);
     const isEditing = ref(false);
     const toast = useToast();
     const deleteClientDialog = ref(false)
@@ -81,6 +82,17 @@ export default defineComponent({
         id: 0,
         name: '',
         note: ''
+    })
+
+    watch(size, (s) => {
+        sizeParam.value = 'size=' + s
+    })
+    watch(currentPage, (cp) => {
+        pageParam.value = 'page=' + cp
+    })
+    watch([sizeParam, pageParam],(p) => {
+        params.value = p.join('&')
+        load(params.value)
     })
 
     const columns = ref([
@@ -101,11 +113,8 @@ export default defineComponent({
     const saveClient = () => {
         const { addedClient, errorAdd, loadAddClient } = clientService.value.addClient();
         loadAddClient(client.value);
-        watch(errorAdd, (e) => {
-            toast.add({severity:'warn', summary: 'Warn Message', detail: e, life: 3000});
-        })
-        watch(addedClient, (c) => {
-            load()
+        watch(addedClient, () => {
+            load(params.value)
         })
         client.value = {
         id: 0,
@@ -123,11 +132,8 @@ export default defineComponent({
     const editClient = () => {
         const { editedClient, errorEdit, loadEditClient } = clientService.value.editClient();
         loadEditClient(client.value.id, client.value);
-        watch(errorEdit, (e) => {
-            toast.add({severity:'warn', summary: 'Warn Message', detail: e, life: 3000});
-        })
         watch(editedClient, (c) => {
-            load()
+            load(params.value)
         })
         client.value = {
         id: 0,
@@ -136,6 +142,7 @@ export default defineComponent({
         };
         clientDialog.value = false;
         isEditing.value = false;
+        
     }
 
     const confirmDeleteClient = (c: number) => {
@@ -147,11 +154,8 @@ export default defineComponent({
         const { resp, errorDelete, loadDeleteClient } = clientService.value.deleteClient();
         console.log(client.value.id)
         loadDeleteClient(client.value.id)
-        watch(errorDelete, (e) => {
-            toast.add({severity:'warn', summary: 'Warn Message', detail: e, life: 3000});
-        })
         watch(resp, () => {
-            load();
+            load(params.value);
         })
         deleteClientDialog.value = false;
         client.value = {
@@ -159,9 +163,15 @@ export default defineComponent({
         name: '',
         note: ''
         };
-        toast.add({severity:'success', summary: 'Successful', detail: 'Client Deleted', life: 3000});
     };
-    return {clients, error, columns, submitted, client, isEditing, clientDialog, openNew, openEdit, hideDialog, saveClient, renderComponent, deleteClientDialog, confirmDeleteClient, deleteClientById, editClient}
+
+    const onPage = (event:any) => {
+        currentPage.value = event.page
+        size.value = event.rows
+    }
+    return {clients, error, currentPage, size, totalRecords, columns, submitted, client, isEditing, clientDialog, 
+        openNew, openEdit, hideDialog, saveClient, renderComponent, deleteClientDialog, 
+        confirmDeleteClient, deleteClientById, editClient, onPage}
   },
 })
 </script>

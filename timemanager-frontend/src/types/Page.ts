@@ -1,8 +1,9 @@
 type Page<T> = {
     content: T[];
-    pageable: string;
+    pageable: any;
     last: boolean;
     totalPages: number;
+    totalElements: number;
     size: number;
     number: number;
     sort: {
