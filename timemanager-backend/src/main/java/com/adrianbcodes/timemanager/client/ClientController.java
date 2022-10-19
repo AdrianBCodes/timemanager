@@ -41,10 +41,7 @@ public class ClientController {
         }
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
 
-        Page<ClientDTO> foundClients = new PageImpl<>(clientService.getAllClientsPaged(name, note, pageable).
-                stream()
-                .map(Client::convertToClientDTO)
-                .toList());
+        Page<ClientDTO> foundClients = clientService.getAllClientsPaged(name, note, pageable).map(Client::convertToClientDTO);
         return ResponseEntity.ok(foundClients);
     }
 
