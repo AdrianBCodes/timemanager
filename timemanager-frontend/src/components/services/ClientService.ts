@@ -13,7 +13,7 @@ export default class ClientService {
         const error = ref(null)
         const requestOptions = {
             method: "GET",
-            headers: { "Content-Type": "application/json" }
+            headers: { "Content-Type": "text/plain" }
           };
         const load = async (params?: string) => {
             try{

@@ -6,6 +6,11 @@ import Tags from '../views/Tags.vue'
 
 const routes: Array<RouteRecordRaw> = [
   {
+    path: '/',
+    redirect: '/clients',
+    name: 'Home'
+  },
+  {
     path: '/clients',
     name: 'Clients',
     component: Clients

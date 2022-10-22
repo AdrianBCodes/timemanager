@@ -15,6 +15,9 @@ import Button from 'primevue/button';
 import Dialog from 'primevue/dialog';
 import Textarea from 'primevue/textarea';
 import Paginator from 'primevue/paginator';
+import Tooltip from 'primevue/tooltip';
+
+
 
 
 import 'primevue/resources/themes/bootstrap4-dark-blue/theme.css'
@@ -38,4 +41,6 @@ app.component('Dialog', Dialog)
 app.component('Textarea', Textarea)
 app.component('Toast', Toast)
 app.component('Paginator', Paginator)
+
+app.directive('tooltip', Tooltip);
 app.mount('#app')
