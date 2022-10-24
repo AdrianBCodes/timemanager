@@ -18,5 +18,6 @@ export default defineComponent({
     border-right: none;
     border-left: none;
     border-top: none;
+    border-radius: 0%;
 }
 </style>
