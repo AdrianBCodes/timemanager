@@ -5,6 +5,7 @@ import com.adrianbcodes.timemanager.dto.TagDTO;
 import com.adrianbcodes.timemanager.task.Task;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.Set;
 
 @Entity
@@ -13,6 +14,7 @@ public class Tag extends StatusAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long id;
+    @NotBlank
     private String name;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST,CascadeType.REFRESH})
@@ -50,16 +52,16 @@ public class Tag extends StatusAudit {
         this.name = name;
     }
 
-    public TagDTO convertToTagDTO(){
-        return new TagDTO(this.id,
-                this.name);
-    }
-
     public Set<Task> getTasks() {
         return tasks;
     }
 
     public void setTasks(Set<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public TagDTO convertToTagDTO(){
+        return new TagDTO(this.id,
+                this.name);
     }
 }

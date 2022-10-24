@@ -10,7 +10,6 @@ import com.adrianbcodes.timemanager.user.User;
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "projects")
@@ -23,7 +22,7 @@ public class Project extends StatusAudit {
     @ManyToOne(fetch = FetchType.LAZY)
     private Client client;
     @ManyToOne(fetch = FetchType.LAZY)
-    private User projectManager;
+    private User owner;
     @ManyToMany(fetch = FetchType.LAZY)
     private Set<User> participants = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY)
@@ -32,31 +31,31 @@ public class Project extends StatusAudit {
     public Project() {
     }
 
-    public Project(String name, Client client, User projectManager) {
+    public Project(String name, Client client, User owner) {
         this.name = name;
         this.client = client;
-        this.projectManager = projectManager;
+        this.owner = owner;
     }
 
-    public Project(Long id, String name, Client client, User projectManager) {
+    public Project(Long id, String name, Client client, User owner) {
         this.id = id;
         this.name = name;
         this.client = client;
-        this.projectManager = projectManager;
+        this.owner = owner;
     }
 
-    public Project(String name, Client client, User projectManager, Set<User> participants) {
+    public Project(String name, Client client, User owner, Set<User> participants) {
         this.name = name;
         this.client = client;
-        this.projectManager = projectManager;
+        this.owner = owner;
         this.participants = participants;
     }
 
-    public Project(Long id, String name, Client client, User projectManager, Set<User> participants) {
+    public Project(Long id, String name, Client client, User owner, Set<User> participants) {
         this.id = id;
         this.name = name;
         this.client = client;
-        this.projectManager = projectManager;
+        this.owner = owner;
         this.participants = participants;
     }
 
@@ -84,12 +83,12 @@ public class Project extends StatusAudit {
         this.client = client;
     }
 
-    public User getProjectManager() {
-        return projectManager;
+    public User getOwner() {
+        return owner;
     }
 
-    public void setProjectManager(User projectManager) {
-        this.projectManager = projectManager;
+    public void setOwner(User projectManager) {
+        this.owner = projectManager;
     }
 
     public Set<User> getParticipants() {
@@ -112,10 +111,8 @@ public class Project extends StatusAudit {
         return new ProjectDTO(
                 this.id,
                 this.name,
-                this.client.getId(),
-                this.projectManager.getId(),
-                this.participants.stream().map(User::getId).collect(Collectors.toSet()),
-                this.tasks.stream().map(Task::getId).collect(Collectors.toSet())
+                this.client.convertToClientDTO(),
+                this.owner.convertToUserDTO()
         );
     }
 }

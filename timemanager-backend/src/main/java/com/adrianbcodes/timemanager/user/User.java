@@ -1,6 +1,9 @@
 package com.adrianbcodes.timemanager.user;
 
 import com.adrianbcodes.timemanager.common.StatusAudit;
+import com.adrianbcodes.timemanager.dto.TagDTO;
+import com.adrianbcodes.timemanager.dto.UserDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 
@@ -82,5 +85,12 @@ public class User extends StatusAudit {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public UserDTO convertToUserDTO(){
+        return new UserDTO(this.id,
+                this.name,
+                this.surname,
+                this.email);
     }
 }

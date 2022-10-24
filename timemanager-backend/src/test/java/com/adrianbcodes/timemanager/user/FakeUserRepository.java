@@ -1,5 +1,8 @@
 package com.adrianbcodes.timemanager.user;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.*;
 
 public class FakeUserRepository implements UserRepository{
@@ -8,6 +11,12 @@ public class FakeUserRepository implements UserRepository{
     @Override
     public List<User> getAllUsers() {
         return users.values().stream().toList();
+    }
+
+    //TODO
+    @Override
+    public Page<User> getAllUsersByNameContainsIgnoreCaseAndSurnameContainsIgnoreCaseAndEmailContainsIgnoreCase(String name, String surname, String email, Pageable pageable) {
+        return null;
     }
 
     @Override

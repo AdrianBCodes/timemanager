@@ -85,7 +85,6 @@ public class ClientController {
         } else if (direction.equals("desc")) {
             return Sort.Direction.DESC;
         }
-
         return Sort.Direction.ASC;
     }
 }

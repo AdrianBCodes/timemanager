@@ -12,12 +12,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SqlClientRepository extends ClientRepository, JpaRepository<Client, Long> {
-
-    @Query("""
-            select c from Client c
-            where upper(c.name) like upper(concat('%', ?1, '%')) and upper(c.note) like upper(concat('%', ?2, '%'))""")
-    Page<Client> findByNameContainsIgnoreCaseAndNoteContainsIgnoreCase(String name, String note, Pageable pageable);
-
     @Query("""
             select c from Client c
             where upper(c.name) like upper(concat('%', ?1, '%')) and upper(c.note) like upper(concat('%', ?2, '%')) and c.status = ?3""")
