@@ -29,7 +29,7 @@ public class TagService {
     public Tag getTagById(Long id){
         return tagRepository.getTagById(id).orElseThrow(() -> new NotFoundException("Tag with id: " + id + " not found"));
     }
-    Tag saveTag(Tag tag){
+    public Tag saveTag(Tag tag){
         return tagRepository.saveTag(tag);
     }
 

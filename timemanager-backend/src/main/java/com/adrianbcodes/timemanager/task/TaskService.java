@@ -1,6 +1,9 @@
 package com.adrianbcodes.timemanager.task;
 
+import com.adrianbcodes.timemanager.client.Client;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
@@ -13,6 +16,10 @@ public class TaskService {
 
     public List<Task> getAllTasks(){
         return taskRepository.getAllTasks();
+    }
+
+    Page<Task> getAllClientsPaged(String name, String description, Long projectId, Pageable pageable) {
+        return taskRepository.getAllTasksByNameLikeAndDescriptionLikeAndProject_Id(name, description, projectId, pageable);
     }
     public Task getTaskById(Long id){
         return taskRepository.getTaskById(id).orElseThrow(() -> new NotFoundException("Task with id: " + id + " not found"));

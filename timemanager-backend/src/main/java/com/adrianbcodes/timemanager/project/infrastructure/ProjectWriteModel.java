@@ -1,31 +1,18 @@
 package com.adrianbcodes.timemanager.project.infrastructure;
 
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class ProjectWriteModel {
     private String name;
     private Long clientId;
-    private Long projectManagerId;
-    private Set<Long> participantsId = new HashSet<>();
-    private Set<Long> tasksId = new HashSet<>();
+    private Long ownerId;
 
     public ProjectWriteModel() {
     }
 
-    public ProjectWriteModel(String name, Long clientId, Long projectManagerId) {
+    public ProjectWriteModel(String name, Long clientId, Long ownerId) {
         this.name = name;
         this.clientId = clientId;
-        this.projectManagerId = projectManagerId;
-    }
-
-    public ProjectWriteModel(String name, Long clientId, Long projectManagerId, Set<Long> participantsId, Set<Long> tasksId) {
-        this.name = name;
-        this.clientId = clientId;
-        this.projectManagerId = projectManagerId;
-        this.participantsId = participantsId;
-        this.tasksId = tasksId;
+        this.ownerId = ownerId;
     }
 
     public String getName() {
@@ -44,27 +31,11 @@ public class ProjectWriteModel {
         this.clientId = clientId;
     }
 
-    public Long getProjectManagerId() {
-        return projectManagerId;
+    public Long getOwnerId() {
+        return ownerId;
     }
 
-    public void setProjectManagerId(Long projectManagerId) {
-        this.projectManagerId = projectManagerId;
-    }
-
-    public Set<Long> getParticipantsId() {
-        return participantsId;
-    }
-
-    public void setParticipantsId(Set<Long> participantsId) {
-        this.participantsId = participantsId;
-    }
-
-    public Set<Long> getTasksId() {
-        return tasksId;
-    }
-
-    public void setTasksId(Set<Long> tasksId) {
-        this.tasksId = tasksId;
+    public void setOwnerId(Long ownerId) {
+        this.ownerId = ownerId;
     }
 }

@@ -12,6 +12,9 @@ import java.util.Optional;
 public interface SqlUserRepository extends UserRepository, JpaRepository<User, Long> {
     Page<User> findByNameContainsIgnoreCaseAndSurnameContainsIgnoreCaseAndEmailContainsIgnoreCaseAndStatus(String name, String surname, String email, StatusEnum statusEnum, Pageable pageable);
 
+    Optional<User> findByUsername(String username);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
     @Override
     default List<User> getAllUsers() {
         return this.findAll();
@@ -36,5 +39,20 @@ public interface SqlUserRepository extends UserRepository, JpaRepository<User, L
     default void deleteUser(User user){
         user.setDeletedAt(new Date());
         this.save(user);
+    }
+
+    @Override
+    default Optional<User> getByUsername(String username){
+        return this.findByUsername(username);
+    }
+
+    @Override
+    default Boolean existByUsername(String username){
+        return this.existsByUsername(username);
+    }
+
+    @Override
+    default Boolean existByEmail(String email){
+        return this.existsByEmail(email);
     }
 }

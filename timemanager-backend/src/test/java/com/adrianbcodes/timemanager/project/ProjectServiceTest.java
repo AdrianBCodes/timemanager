@@ -42,14 +42,14 @@ class ProjectServiceTest {
                 .withId(1L)
                 .withName("Project1")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         Project project2 = ProjectBuilder
                 .builder()
                 .withId(2L)
                 .withName("Project2")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         projectService.saveProject(project);
         projectService.saveProject(project2);
@@ -86,14 +86,14 @@ class ProjectServiceTest {
                 .withId(1L)
                 .withName("Project1")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         Project project2 = ProjectBuilder
                 .builder()
                 .withId(2L)
                 .withName("Project2")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         projectService.saveProject(project);
         projectService.saveProject(project2);
@@ -122,21 +122,21 @@ class ProjectServiceTest {
                 .withId(1L)
                 .withName("Project1")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         Project project2 = ProjectBuilder
                 .builder()
                 .withId(2L)
                 .withName("Project2")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         Project project3 = ProjectBuilder
                 .builder()
                 .withId(3L)
                 .withName("Project3")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         projectService.saveProject(project);
         projectService.saveProject(project2);
@@ -166,7 +166,7 @@ class ProjectServiceTest {
                 .withId(1L)
                 .withName("Project1")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         projectService.saveProject(project);
         //when
@@ -200,7 +200,7 @@ class ProjectServiceTest {
                 .withId(1L)
                 .withName("Project1")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         //when
         projectService.saveProject(project);
@@ -224,7 +224,7 @@ class ProjectServiceTest {
                 .withId(1L)
                 .withName("Project1")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         project.setStatus(StatusEnum.ACTIVE);
         projectService.saveProject(project);
@@ -250,7 +250,7 @@ class ProjectServiceTest {
                 .withId(1L)
                 .withName("Project1")
                 .withClient(client)
-                .withProjectManager(user)
+                .withOwner(user)
                 .buildWithId();
         project.setStatus(StatusEnum.DELETED);
         projectService.saveProject(project);

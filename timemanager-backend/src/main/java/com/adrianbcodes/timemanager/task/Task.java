@@ -32,6 +32,12 @@ public class Task extends StatusAudit {
     public Task() {
     }
 
+    public Task(String name, String description, Project project) {
+        this.name = name;
+        this.description = description;
+        this.project = project;
+    }
+
     public Task(String name, String description, Project project, Set<Tag> tags) {
         this.name = name;
         this.description = description;
@@ -93,7 +99,7 @@ public class Task extends StatusAudit {
                 this.name,
                 this.description,
                 this.project.getId(),
-                this.tags.stream().map(Tag::getId).collect(Collectors.toSet())
+                this.tags.stream().map(Tag::convertToTagDTO).collect(Collectors.toSet())
         );
     }
 }

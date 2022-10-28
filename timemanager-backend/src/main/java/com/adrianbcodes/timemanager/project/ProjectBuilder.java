@@ -1,12 +1,8 @@
 package com.adrianbcodes.timemanager.project;
 
 import com.adrianbcodes.timemanager.client.Client;
-import com.adrianbcodes.timemanager.task.Task;
 import com.adrianbcodes.timemanager.user.User;
 
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToMany;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -14,7 +10,7 @@ public class ProjectBuilder {
     private Long id;
     private String name;
     private Client client;
-    private User projectManager;
+    private User owner;
 
     private Set<User> participants = new HashSet<>();
 
@@ -38,8 +34,8 @@ public class ProjectBuilder {
         return this;
     }
 
-    public ProjectBuilder withProjectManager(User projectManager) {
-        this.projectManager = projectManager;
+    public ProjectBuilder withOwner(User owner) {
+        this.owner = owner;
         return this;
     }
 
@@ -49,10 +45,10 @@ public class ProjectBuilder {
     }
 
     public Project build() {
-        return new Project(name, client, projectManager, participants);
+        return new Project(name, client, owner, participants);
     }
 
     public Project buildWithId() {
-        return new Project(id, name, client, projectManager, participants);
+        return new Project(id, name, client, owner, participants);
     }
 }

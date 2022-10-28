@@ -1,10 +1,16 @@
 package com.adrianbcodes.timemanager.dto;
 
+import com.adrianbcodes.timemanager.user.role.Role;
+
+import java.util.HashSet;
+import java.util.Set;
+
 public class UserDTO {
     private Long id;
     private String name;
     private String surname;
     private String email;
+    private Set<Role> roles = new HashSet<>();
 
     public UserDTO() {
     }
@@ -14,6 +20,14 @@ public class UserDTO {
         this.name = name;
         this.surname = surname;
         this.email = email;
+    }
+
+    public UserDTO(Long id, String name, String surname, String email, Set<Role> roles) {
+        this.id = id;
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.roles = roles;
     }
 
     public Long getId() {
@@ -46,5 +60,13 @@ public class UserDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

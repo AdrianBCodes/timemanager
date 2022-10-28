@@ -31,7 +31,7 @@ public class ProjectService {
     public Project getProjectById(Long id){
         return projectRepository.getProjectById(id).orElseThrow(() -> new NotFoundException("Project with id: " + id + " not found"));
     }
-    Project saveProject(Project project){
+    public Project saveProject(Project project){
         return projectRepository.saveProject(project);
     }
     void deleteProjectById(Long id){

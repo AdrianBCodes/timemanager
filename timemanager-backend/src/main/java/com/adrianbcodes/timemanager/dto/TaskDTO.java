@@ -8,14 +8,14 @@ public class TaskDTO {
     private String name;
     private String description;
     private Long projectId;
-    private Set<Long> tagsId = new HashSet<>();
+    private Set<TagDTO> tags = new HashSet<>();
 
-    public TaskDTO(Long id, String name, String description, Long projectId, Set<Long> tagsId) {
+    public TaskDTO(Long id, String name, String description, Long projectId, Set<TagDTO> tags) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.projectId = projectId;
-        this.tagsId = tagsId;
+        this.tags = tags;
     }
 
     public Long getId() {
@@ -50,11 +50,11 @@ public class TaskDTO {
         this.projectId = projectId;
     }
 
-    public Set<Long> getTagsId() {
-        return tagsId;
+    public Set<TagDTO> getTags() {
+        return tags;
     }
 
-    public void setTagsId(Set<Long> tagsId) {
-        this.tagsId = tagsId;
+    public void setTags(Set<TagDTO> tags) {
+        this.tags = tags;
     }
 }

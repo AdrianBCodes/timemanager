@@ -3,9 +3,13 @@ package com.adrianbcodes.timemanager.user;
 import com.adrianbcodes.timemanager.common.StatusAudit;
 import com.adrianbcodes.timemanager.dto.TagDTO;
 import com.adrianbcodes.timemanager.dto.UserDTO;
+import com.adrianbcodes.timemanager.user.role.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
+import javax.validation.constraints.Email;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -15,13 +19,24 @@ public class User extends StatusAudit {
     private Long id;
     private String name;
     private String surname;
+    @Email
     private String email;
     private String username;
     private String password;
 
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(	name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
     public User() {
     }
 
+    public User(String username, String email, String password) {
+        this.username = username;
+        this.email = email;
+        this.password = password;
+    }
     public User(String name, String surname, String email, String username, String password) {
         this.name = name;
         this.surname = surname;
@@ -87,10 +102,19 @@ public class User extends StatusAudit {
         this.password = password;
     }
 
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
+
     public UserDTO convertToUserDTO(){
         return new UserDTO(this.id,
                 this.name,
                 this.surname,
-                this.email);
+                this.email,
+                this.roles);
     }
 }

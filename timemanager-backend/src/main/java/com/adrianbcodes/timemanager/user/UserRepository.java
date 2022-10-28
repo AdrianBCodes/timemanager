@@ -15,4 +15,10 @@ public interface UserRepository {
     Optional<User> getUserById(Long id);
     User saveUser(User user);
     void deleteUser(User user);
+
+    Optional<User> getByUsername(String username);
+
+    Boolean existByUsername(String username);
+
+    Boolean existByEmail(String email);
 }
