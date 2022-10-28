@@ -15,7 +15,7 @@ export default class TagService {
             method: "GET",
             headers: { "Content-Type": "text/plain" }
           };
-        const load = async (params?: string) => {
+        const load = async (params = '') => {
             try{
                 const res = await fetch('http://localhost:8080/api/v1/tags?' + params, requestOptions)
                 if(!res.ok){

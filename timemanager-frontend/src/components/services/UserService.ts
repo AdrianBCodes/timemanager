@@ -10,12 +10,12 @@ export default class UserService {
         const page = ref<Page<User>>();
         const totalRecords = ref(0)
         const users = ref<User[]>([])
-        const error = ref(null)
+        const errorGetUsers = ref(null)
         const requestOptions = {
             method: "GET",
             headers: { "Content-Type": "text/plain" }
           };
-        const load = async (params?: string) => {
+        const loadGetUsers = async (params = '') => {
             try{
                 const res = await fetch('http://localhost:8080/api/v1/users?' + params, requestOptions)
                 if(!res.ok){
@@ -25,16 +25,16 @@ export default class UserService {
                 users.value = page.value!.content
                 totalRecords.value = page.value!.totalElements
             } catch(e: any){
-                error.value = e;
+                errorGetUsers.value = e;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { page, users, totalRecords, error, load}
+        return { page, users, totalRecords, errorGetUsers, loadGetUsers}
     }
 
     addUser = () => {
         const addedUser = ref<User>({id: 0, name: '', surname: '', email: ''})
-        const errorAdd = ref(null)
+        const errorAddUser = ref(null)
         const loadAddUser = async (user: User) => {
             const requestOptions = {
                 method: "POST",
@@ -49,16 +49,16 @@ export default class UserService {
                 addedUser.value = await data.json()
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'User Added', life: 3000});
             } catch(e: any){
-                errorAdd.value = e.message;
+                errorAddUser.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { addedUser, errorAdd, loadAddUser }
+        return { addedUser, errorAddUser, loadAddUser }
     }
 
     editUser = () => {
         const editedUser = ref<User>({id: 0, name: '', surname: '', email: ''})
-        const errorEdit = ref(null)
+        const errorEditUser = ref(null)
         const loadEditUser = async (userId: number, user: User) => {
             const requestOptions = {
                 method: "PUT",
@@ -73,17 +73,17 @@ export default class UserService {
                 editedUser.value = await data.json()
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'User Edited', life: 3000});
             } catch(e: any){
-                errorEdit.value = e.message;
+                errorEditUser.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { editedUser, errorEdit, loadEditUser }
+        return { editedUser, errorEditUser, loadEditUser }
     }
 
     deleteUser = () => {
         
         const resp = ref(null)
-        const errorDelete = ref(null)
+        const errorDeleteUser = ref(null)
         const loadDeleteUser = async (userId: number) => {
             const requestOptions = {
                 method: "DELETE",
@@ -97,10 +97,10 @@ export default class UserService {
                 resp.value = await data.json();
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'User Deleted', life: 3000});
             } catch(e: any){
-                errorDelete.value = e.message;
+                errorDeleteUser.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return {resp, errorDelete, loadDeleteUser }
+        return {resp, errorDeleteUser, loadDeleteUser }
     }
 }

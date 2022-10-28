@@ -16,6 +16,7 @@ import Dialog from 'primevue/dialog';
 import Textarea from 'primevue/textarea';
 import Paginator from 'primevue/paginator';
 import Tooltip from 'primevue/tooltip';
+import Dropdown from 'primevue/dropdown';
 
 
 
@@ -41,6 +42,7 @@ app.component('Dialog', Dialog)
 app.component('Textarea', Textarea)
 app.component('Toast', Toast)
 app.component('Paginator', Paginator)
+app.component('Dropdown', Dropdown)
 
 app.directive('tooltip', Tooltip);
 app.mount('#app')

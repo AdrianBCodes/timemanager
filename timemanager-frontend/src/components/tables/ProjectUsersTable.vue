@@ -6,12 +6,12 @@
             </template>
         </Toolbar>
 
-        <DataTable :key="datatableKey" :value="clients" showGridlines stripedRows responsiveLayout="scroll"
+        <DataTable :key="datatableKey" :value="tasks" showGridlines stripedRows responsiveLayout="scroll"
             :scrollable="true" scrollHeight="flex" :rows="size" @sort="onSort($event)" v-model:filters="filters1"
             filterDisplay="row">
             <template #header>
                 <div class="table-header-footer">
-                    Clients
+                    Tasks
                     <span class="p-input-icon-left ">
                         <Button label="Clear filters" class="p-button-secondary" @click="clearFilters()"></Button>
                     </span>
@@ -25,12 +25,12 @@
                         :placeholder="`Search by name `" v-tooltip.top.focus="'Hit enter key to filter'" />
                 </template>
             </Column>
-            <Column field="note" header="Note" :sortable="true" fielterField="note" :showFilterMenu="false"
+            <Column field="description" header="Description" :sortable="true" fielterField="description" :showFilterMenu="false"
                 :show-clear-button="false">
                 <template #filter="{filterModel}">
                     <InputText type="text" v-model="filterModel.value"
-                        @keydown.enter="onFilter('note', filterModel.value)" class="p-column-filter"
-                        :placeholder="`Search by note `" v-tooltip.top.focus="'Hit enter key to filter'" />
+                        @keydown.enter="onFilter('description', filterModel.value)" class="p-column-filter"
+                        :placeholder="`Search by description `" v-tooltip.top.focus="'Hit enter key to filter'" />
                 </template>
             </Column>
             <Column :exportable="false" style="max-width:12rem ">
@@ -38,44 +38,44 @@
                     <Button icon="pi pi-pencil" class="p-button-rounded p-button-success"
                         @click="openEdit(slotProps.data)" />
                     <Button icon="pi pi-trash" class="p-button-rounded p-button-danger"
-                        @click="confirmDeleteClient(slotProps.data.id)" />
+                        @click="confirmDeleteTask(slotProps.data.id)" />
                 </template>
             </Column>
             <template #footer>
                 <Paginator :first="offset" :rows="size" :totalRecords="totalRecords" @page="onPage($event)"
                     :rowsPerPageOptions="[5,10,25,50,100]"
-                    currentPageReportTemplate="Showing {first} - {last} of {totalRecords} clients"
+                    currentPageReportTemplate="Showing {first} - {last} of {totalRecords} tasks"
                     template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown" />
             </template>
         </DataTable>
 
-        <Dialog v-model:visible="clientDialog" :style="{width: '450px'}" header="Client Details" :modal="true" :closable="false"
+        <Dialog v-model:visible="taskDialog" :style="{width: '450px'}" header="Task Details" :modal="true" :closable="false"
             class="p-fluid">
             <div class="field">
                 <label for="name">Name</label>
-                <InputText id="name" v-model.trim="client.name" required="true" autofocus />
-                <small class="p-error" v-if="submitted && !client.name">Name is required.</small>
+                <InputText id="name" v-model.trim="task.name" required="true" autofocus />
+                <small class="p-error" v-if="submitted && !task.name">Name is required.</small>
             </div>
             <div class="field">
-                <label for="note">Note</label>
-                <Textarea id="note" v-model="client.note" required="true" rows="3" cols="20" />
+                <label for="description">Description</label>
+                <Textarea id="description" v-model="task.description" required="true" rows="3" cols="20" />
             </div>
             <template #footer>
-                <Button v-if="isEditing" label="Save" icon="pi pi-check " class="p-button" @click="editClient" />
+                <Button v-if="isEditing" label="Save" icon="pi pi-check " class="p-button" @click="editTask" />
                 <Button v-else-if="!isEditing" label="Save" icon="pi pi-check " class="p-button p-button-success"
-                    @click="saveClient" />
+                    @click="saveTask" />
                     <Button label="Cancel" icon="pi pi-times" class="p-button p-button-danger" @click="hideDialog" />
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteClientDialog" :style="{width: '450px'}" header="Confirm" :modal="true" :closable="false">
+        <Dialog v-model:visible="deleteTaskDialog" :style="{width: '450px'}" header="Confirm" :modal="true" :closable="false">
             <div class="confirmation-content">
                 <i class="pi pi-exclamation-triangle" style="font-size: 2rem; margin-right: 0.5em;" />
-                <span v-if="client">Are you sure you want to delete <b>{{client.name}}</b>?</span>
+                <span v-if="task">Are you sure you want to delete <b>{{task.name}}</b>?</span>
             </div>
             <template #footer>
-                <Button label="Yes" icon="pi pi-check" class="p-button p-button-success" @click="deleteClientById" />
-                <Button label="No" icon="pi pi-times" class="p-button p-button-danger" @click="deleteClientDialog = false" />
+                <Button label="Yes" icon="pi pi-check" class="p-button p-button-success" @click="deleteTaskById" />
+                <Button label="No" icon="pi pi-times" class="p-button p-button-danger" @click="deleteTaskDialog = false" />
             </template>
         </Dialog>
     </div>
@@ -84,13 +84,16 @@
 <script lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { defineComponent } from 'vue';
-import Client from '@/types/Client';
-import ClientService from '../services/ClientService';
+import Task from '@/types/Task';
+import TaskService from '../services/TaskService';
 import { FilterMatchMode } from 'primevue/api';
 
 export default defineComponent({
-    setup() {
-        const clientDialog = ref(false);
+    props: {
+        projectId: Number
+    },
+    setup(props) {
+        const taskDialog = ref(false);
         const datatableKey = ref(0)
         const offset = ref(0)
         const currentPage = ref(0)
@@ -98,24 +101,31 @@ export default defineComponent({
         const pageParam = ref('page=' + currentPage.value)
         const sizeParam = ref('size=' + size.value)
         const sortParam = ref('')
+        const projectIdParam = ref('projectId=' + props.projectId)
         const filterNameParam = ref('')
-        const filterNoteParam = ref('')
-        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterNoteParam.value)
-        const clientService = ref(new ClientService());
-        const { clients, totalRecords, errorGetClients, loadGetClients } = clientService.value.getClients()
+        const filterDescriptionParam = ref('')
+        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + projectIdParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterDescriptionParam.value)
+        const taskService = ref(new TaskService());
+        const { tasks, totalRecords, errorGetTasks, loadGetTasks } = taskService.value.getTasks()
         const isEditing = ref(false);
-        const deleteClientDialog = ref(false)
+        const deleteTaskDialog = ref(false)
         const submitted = ref(false)
         const renderComponent = ref(true)
-        const client = ref<Client>({ id: 0, name: '', note: '' })
+        const task = ref<Task>({
+            id: 0,
+            name: '',
+            description: '',
+            projectId: props.projectId,
+            tags: []
+        })
 
         onMounted(() => {
-            loadGetClients(params.value);
+            loadGetTasks(params.value);
         })
 
         const filters1 = ref({
             'name': { value: null, matchMode: FilterMatchMode.CONTAINS },
-            'note': { value: null, matchMode: FilterMatchMode.CONTAINS }
+            'description': { value: null, matchMode: FilterMatchMode.CONTAINS }
         });
 
         watch(size, (s) => {
@@ -124,60 +134,84 @@ export default defineComponent({
         watch(currentPage, (cp) => {
             pageParam.value = 'page=' + cp
         })
-        watch([sizeParam, pageParam, sortParam, filterNameParam, filterNoteParam], (p) => {
+        watch([sizeParam, pageParam, projectIdParam, sortParam, filterNameParam, filterDescriptionParam], (p) => {
             params.value = p.join('&')
-            loadGetClients(params.value)
+            loadGetTasks(params.value)
         })
 
         
         const openNew = () => {
-            clientDialog.value = true;
+            taskDialog.value = true;
         };
 
         const hideDialog = () => {
-            clientDialog.value = false;
-            client.value = { id: 0, name: '', note: '' };
+            taskDialog.value = false;
+            task.value = {
+            id: 0,
+            name: '',
+            description: '',
+            projectId: props.projectId,
+            tags: []
+        };
         };
 
-        const saveClient = () => {
-            const { addedClient, loadAddClient } = clientService.value.addClient();
-            loadAddClient(client.value);
-            watch(addedClient, () => {
-                loadGetClients(params.value)
+        const saveTask = () => {
+            const { addedTask, loadAddTask } = taskService.value.addTask();
+            loadAddTask(task.value);
+            watch(addedTask, () => {
+                loadGetTasks(params.value)
             })
-            client.value = { id: 0, name: '', note: '' };
-            clientDialog.value = false;
+            task.value = {
+            id: 0,
+            name: '',
+            description: '',
+            projectId: props.projectId,
+            tags: []
+        };
+            taskDialog.value = false;
         }
-        const openEdit = (cli: Client) => {
+        const openEdit = (cli: Task) => {
             isEditing.value = true;
-            clientDialog.value = true;
-            client.value = { ...cli };
+            taskDialog.value = true;
+            task.value = { ...cli };
         };
 
-        const editClient = () => {
-            const { editedClient, loadEditClient } = clientService.value.editClient();
-            loadEditClient(client.value.id, client.value);
-            watch(editedClient, () => {
-                loadGetClients(params.value)
+        const editTask = () => {
+            const { editedTask, loadEditTask } = taskService.value.editTask();
+            loadEditTask(task.value.id, task.value);
+            watch(editedTask, () => {
+                loadGetTasks(params.value)
             })
-            client.value = { id: 0, name: '', note: '' };
-            clientDialog.value = false;
+            task.value = {
+            id: 0,
+            name: '',
+            description: '',
+            projectId: props.projectId,
+            tags: []
+        };
+            taskDialog.value = false;
             isEditing.value = false;
         }
 
-        const confirmDeleteClient = (c: number) => {
-            client.value.id = c;
-            deleteClientDialog.value = true;
+        const confirmDeleteTask = (c: number) => {
+            task.value.id = c;
+            deleteTaskDialog.value = true;
         };
 
-        const deleteClientById = () => {
-            const { resp, loadDeleteClient } = clientService.value.deleteClient();
-            loadDeleteClient(client.value.id)
+        const deleteTaskById = () => {
+            const { resp, loadDeleteTask } = taskService.value.deleteTask();
+            loadDeleteTask(task.value.id)
             watch(resp, () => {
-                loadGetClients(params.value);
+                loadGetTasks(params.value);
             })
-            deleteClientDialog.value = false;
-            client.value = { id: 0, name: '', note: '' };
+            deleteTaskDialog.value = false;
+            task.value = {
+            id: 0,
+            name: '',
+            description: '',
+            projectId: props.projectId,
+            tags: []
+        };
         };
 
         const onPage = (event: any) => {
@@ -199,7 +233,7 @@ export default defineComponent({
             offset.value = 0
         }
 
-        const onFilter = (prop: 'name' | 'note', input: string) => {
+        const onFilter = (prop: 'name' | 'description', input: string) => {
             if (input === null) {
                 return;
             }
@@ -207,8 +241,8 @@ export default defineComponent({
             if(prop === 'name'){
                 filterNameParam.value = prop + '=' + input
             }
-            if(prop === 'note'){
-                filterNoteParam.value = prop + '=' + input
+            if(prop === 'description'){
+                filterDescriptionParam.value = prop + '=' + input
             }
         }
 
@@ -217,14 +251,14 @@ export default defineComponent({
             offset.value = 0
             sortParam.value = ''
             filterNameParam.value = ''
-            filterNoteParam.value = ''
+            filterDescriptionParam.value = ''
             datatableKey.value++
         }
 
         return {
-            clients, errorGetClients, currentPage, size, totalRecords, submitted, client, isEditing, clientDialog,
-            openNew, openEdit, hideDialog, saveClient, renderComponent, deleteClientDialog,
-            confirmDeleteClient, deleteClientById, editClient, onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey
+            tasks, errorGetTasks, currentPage, size, totalRecords, submitted, task, isEditing, taskDialog,
+            openNew, openEdit, hideDialog, saveTask, renderComponent, deleteTaskDialog,
+            confirmDeleteTask, deleteTaskById, editTask, onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey
         }
     },
 })

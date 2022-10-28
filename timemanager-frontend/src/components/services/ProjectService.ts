@@ -2,6 +2,7 @@ import Project from "@/types/Project";
 import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
+import ProjectWriteModel from "@/types/ProjectWriteModel";
 
 export default class ProjectService {
     toast = useToast();
@@ -10,12 +11,12 @@ export default class ProjectService {
         const page = ref<Page<Project>>();
         const totalRecords = ref(0)
         const projects = ref<Project[]>([])
-        const error = ref(null)
+        const errorGetProjects = ref(null)
         const requestOptions = {
             method: "GET",
             headers: { "Content-Type": "text/plain" }
           };
-        const load = async (params?: string) => {
+        const loadGetProjects = async (params = '') => {
             try{
                 const res = await fetch('http://localhost:8080/api/v1/projects?' + params, requestOptions)
                 if(!res.ok){
@@ -25,21 +26,22 @@ export default class ProjectService {
                 projects.value = page.value!.content
                 totalRecords.value = page.value!.totalElements
             } catch(e: any){
-                error.value = e;
+                errorGetProjects.value = e;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { page, projects, totalRecords, error, load}
+        return { page, projects, totalRecords, errorGetProjects, loadGetProjects}
     }
 
     addProject = () => {
+        
         const addedProject = ref<Project>({id: 0, name: '', client:{id:0, name: '', note: ''}, owner:{id:0, name:'', surname: '', email: '',}})
-        const errorAdd = ref(null)
-        const loadAddProject = async (project: Project) => {
+        const errorAddProject = ref(null)
+        const loadAddProject = async (projectWM: ProjectWriteModel) => {
             const requestOptions = {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(project)
+                body: JSON.stringify(projectWM)
             };
             try{
                 const data = await fetch('http://localhost:8080/api/v1/projects', requestOptions)
@@ -49,17 +51,17 @@ export default class ProjectService {
                 addedProject.value = await data.json()
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Project Added', life: 3000});
             } catch(e: any){
-                errorAdd.value = e.message;
+                errorAddProject.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { addedProject, errorAdd, loadAddProject }
+        return { addedProject, errorAddProject, loadAddProject }
     }
 
     editProject = () => {
         const editedProject = ref<Project>({id: 0, name: '', client:{id:0, name: '', note: ''}, owner:{id:0, name:'', surname: '', email: '',}})
-        const errorEdit = ref(null)
-        const loadEditProject = async (projectId: number, project: Project) => {
+        const errorEditProject = ref(null)
+        const loadEditProject = async (projectId: number, project: ProjectWriteModel) => {
             const requestOptions = {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
@@ -73,17 +75,17 @@ export default class ProjectService {
                 editedProject.value = await data.json()
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Project Edited', life: 3000});
             } catch(e: any){
-                errorEdit.value = e.message;
+                errorEditProject.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { editedProject, errorEdit, loadEditProject }
+        return { editedProject, errorEditProject, loadEditProject }
     }
 
     deleteProject = () => {
         
         const resp = ref(null)
-        const errorDelete = ref(null)
+        const errorDeleteProject = ref(null)
         const loadDeleteProject = async (projectId: number) => {
             const requestOptions = {
                 method: "DELETE",
@@ -97,10 +99,10 @@ export default class ProjectService {
                 resp.value = await data.json();
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Project Deleted', life: 3000});
             } catch(e: any){
-                errorDelete.value = e.message;
+                errorDeleteProject.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return {resp, errorDelete, loadDeleteProject }
+        return {resp, errorDeleteProject, loadDeleteProject }
     }
 }

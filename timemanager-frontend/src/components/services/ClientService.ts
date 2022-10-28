@@ -10,12 +10,12 @@ export default class ClientService {
         const page = ref<Page<Client>>();
         const totalRecords = ref(0)
         const clients = ref<Client[]>([])
-        const error = ref(null)
+        const errorGetClients = ref(null)
         const requestOptions = {
             method: "GET",
             headers: { "Content-Type": "text/plain" }
           };
-        const load = async (params?: string) => {
+        const loadGetClients = async (params = '') => {
             try{
                 const res = await fetch('http://localhost:8080/api/v1/clients?' + params, requestOptions)
                 if(!res.ok){
@@ -25,11 +25,11 @@ export default class ClientService {
                 clients.value = page.value!.content
                 totalRecords.value = page.value!.totalElements
             } catch(e: any){
-                error.value = e;
+                errorGetClients.value = e;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { page, clients, totalRecords, error, load}
+        return { page, clients, totalRecords, errorGetClients, loadGetClients}
     }
 
     addClient = () => {
@@ -38,7 +38,7 @@ export default class ClientService {
             name: '',
             note: ''
         })
-        const errorAdd = ref(null)
+        const errorAddClient = ref(null)
         const loadAddClient = async (client: Client) => {
             const requestOptions = {
                 method: "POST",
@@ -53,11 +53,11 @@ export default class ClientService {
                 addedClient.value = await data.json()
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Client Added', life: 3000});
             } catch(e: any){
-                errorAdd.value = e.message;
+                errorAddClient.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { addedClient, errorAdd, loadAddClient }
+        return { addedClient, errorAddClient, loadAddClient }
     }
 
     editClient = () => {
@@ -66,7 +66,7 @@ export default class ClientService {
             name: '',
             note: ''
         })
-        const errorEdit = ref(null)
+        const errorEditClient = ref(null)
         const loadEditClient = async (clientId: number, client: Client) => {
             const requestOptions = {
                 method: "PUT",
@@ -81,17 +81,17 @@ export default class ClientService {
                 editedClient.value = await data.json()
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Client Edited', life: 3000});
             } catch(e: any){
-                errorEdit.value = e.message;
+                errorEditClient.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return { editedClient, errorEdit, loadEditClient }
+        return { editedClient, errorEditClient, loadEditClient }
     }
 
     deleteClient = () => {
         
         const resp = ref(null)
-        const errorDelete = ref(null)
+        const errorDeleteClient = ref(null)
         const loadDeleteClient = async (clientId: number) => {
             const requestOptions = {
                 method: "DELETE",
@@ -105,10 +105,10 @@ export default class ClientService {
                 resp.value = await data.json();
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Client Deleted', life: 3000});
             } catch(e: any){
-                errorDelete.value = e.message;
+                errorDeleteClient.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
-        return {resp, errorDelete, loadDeleteClient }
+        return {resp, errorDeleteClient, loadDeleteClient }
     }
 }

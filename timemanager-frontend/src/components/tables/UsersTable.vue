@@ -57,7 +57,7 @@
             </template>
         </DataTable>
 
-        <Dialog v-model:visible="userDialog" :style="{width: '450px'}" header="User Details" :modal="true"
+        <Dialog v-model:visible="userDialog" :style="{width: '450px'}" header="User Details" :modal="true" :closable="false"
             class="p-fluid">
             <div class="field">
                 <label for="name">Name</label>
@@ -82,14 +82,14 @@
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteUserDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
+        <Dialog v-model:visible="deleteUserDialog" :style="{width: '450px'}" header="Confirm" :modal="true" :closable="false">
             <div class="confirmation-content">
-                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem; margin-right: 0.5em;" />
                 <span v-if="user">Are you sure you want to delete <b>{{user.name}}</b>?</span>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteUserDialog = false" />
-                <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteUserById" />
+                <Button label="Yes" icon="pi pi-check" class="p-button p-button-success" @click="deleteUserById" />
+                <Button label="No" icon="pi pi-times" class="p-button p-button-danger" @click="deleteUserDialog = false" />
             </template>
         </Dialog>
     </div>
@@ -117,7 +117,7 @@ export default defineComponent({
         const filterEmailParam = ref('')
         const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterSurnameParam.value + '&' + filterEmailParam.value)
         const userService = ref(new UserService());
-        const { users, totalRecords, error, load } = userService.value.getUsers()
+        const { users, totalRecords, errorGetUsers, loadGetUsers } = userService.value.getUsers()
         const isEditing = ref(false);
         const deleteUserDialog = ref(false)
         const submitted = ref(false)
@@ -125,7 +125,7 @@ export default defineComponent({
         const user = ref<User>({id: 0, name: '', surname: '', email: ''})
 
         onMounted(() => {
-            load(params.value);
+            loadGetUsers(params.value);
         })
         
         watch(users, (taaag) => {
@@ -145,7 +145,7 @@ export default defineComponent({
         })
         watch([sizeParam, pageParam, sortParam, filterNameParam, filterSurnameParam, filterEmailParam], (p) => {
             params.value = p.join('&')
-            load(params.value)
+            loadGetUsers(params.value)
         })
 
         
@@ -155,13 +155,14 @@ export default defineComponent({
 
         const hideDialog = () => {
             userDialog.value = false;
+            user.value = {id: 0, name: '', surname: '', email: ''}
         };
 
         const saveUser = () => {
             const { addedUser, loadAddUser } = userService.value.addUser();
             loadAddUser(user.value);
             watch(addedUser, () => {
-                load(params.value)
+                loadGetUsers(params.value)
             })
             user.value = {id: 0, name: '', surname: '', email: ''}
             userDialog.value = false;
@@ -176,7 +177,7 @@ export default defineComponent({
             const { editedUser, loadEditUser } = userService.value.editUser();
             loadEditUser(user.value.id, user.value);
             watch(editedUser, () => {
-                load(params.value)
+                loadGetUsers(params.value)
             })
             user.value = {id: 0, name: '', surname: '', email: ''}
             userDialog.value = false;
@@ -192,7 +193,7 @@ export default defineComponent({
             const { resp, loadDeleteUser } = userService.value.deleteUser();
             loadDeleteUser(user.value.id)
             watch(resp, () => {
-                load(params.value);
+                loadGetUsers(params.value);
             })
             deleteUserDialog.value = false;
             user.value = {id: 0, name: '', surname: '', email: ''}
@@ -243,7 +244,7 @@ export default defineComponent({
         }
 
         return {
-            users, error, currentPage, size, totalRecords, submitted, user, isEditing, userDialog,
+            users, errorGetUsers, currentPage, size, totalRecords, submitted, user, isEditing, userDialog,
             openNew, openEdit, hideDialog, saveUser, renderComponent, deleteUserDialog,
             confirmDeleteUser, deleteUserById, editUser, onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey
         }

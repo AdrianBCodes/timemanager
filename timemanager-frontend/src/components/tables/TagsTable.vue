@@ -41,7 +41,7 @@
             </template>
         </DataTable>
 
-        <Dialog v-model:visible="tagDialog" :style="{width: '450px'}" header="Tag Details" :modal="true"
+        <Dialog v-model:visible="tagDialog" :style="{width: '450px'}" header="Tag Details" :modal="true" :closable="false"
             class="p-fluid">
             <div class="field">
                 <label for="name">Name</label>
@@ -56,14 +56,14 @@
             </template>
         </Dialog>
 
-        <Dialog v-model:visible="deleteTagDialog" :style="{width: '450px'}" header="Confirm" :modal="true">
+        <Dialog v-model:visible="deleteTagDialog" :style="{width: '450px'}" header="Confirm" :modal="true" :closable="false">
             <div class="confirmation-content">
-                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem" />
+                <i class="pi pi-exclamation-triangle mr-3" style="font-size: 2rem; margin-right: 0.5em;" />
                 <span v-if="tag">Are you sure you want to delete <b>{{tag.name}}</b>?</span>
             </div>
             <template #footer>
-                <Button label="No" icon="pi pi-times" class="p-button-text" @click="deleteTagDialog = false" />
-                <Button label="Yes" icon="pi pi-check" class="p-button-text" @click="deleteTagById" />
+                <Button label="Yes" icon="pi pi-check" class="p-button p-button-success" @click="deleteTagById" />
+                <Button label="No" icon="pi pi-times" class="p-button p-button-danger" @click="deleteTagDialog = false" />
             </template>
         </Dialog>
     </div>
@@ -125,6 +125,7 @@ export default defineComponent({
 
         const hideDialog = () => {
             tagDialog.value = false;
+            tag.value = { id: 0, name: ''};
         };
 
         const saveTag = () => {
