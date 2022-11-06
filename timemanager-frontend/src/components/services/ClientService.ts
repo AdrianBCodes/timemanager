@@ -2,6 +2,7 @@ import Client from "@/types/Client";
 import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
+import authHeader from "./Auth-header";
 
 export default class ClientService {
     toast = useToast();
@@ -10,10 +11,14 @@ export default class ClientService {
         const page = ref<Page<Client>>();
         const totalRecords = ref(0)
         const clients = ref<Client[]>([])
-        const errorGetClients = ref(null)
+        const errorGetClients = ref()
+        const headers = new Headers()
+        console.log(authHeader())
+        headers.append('Authorization', authHeader())
+        headers.append("Content-Type", "application/json")
         const requestOptions = {
             method: "GET",
-            headers: { "Content-Type": "text/plain" }
+            headers: headers
           };
         const loadGetClients = async (params = '') => {
             try{
@@ -25,7 +30,7 @@ export default class ClientService {
                 clients.value = page.value!.content
                 totalRecords.value = page.value!.totalElements
             } catch(e: any){
-                errorGetClients.value = e;
+                errorGetClients.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             }
         }
@@ -42,7 +47,7 @@ export default class ClientService {
         const loadAddClient = async (client: Client) => {
             const requestOptions = {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json"},
                 body: JSON.stringify(client)
             };
             try{

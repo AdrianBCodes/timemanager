@@ -1,6 +1,6 @@
 <template>
-  <NavBar class="fixed-header"/>
-  <Sidebar style="padding-top: 30px;"/>
+  <NavBar class="fixed-header" v-if="showBars"/>
+  <Sidebar style="padding-top: 30px;" v-if="showBars"/>
   <div class="content" :style="{'margin-left': sidebarWidth}">
   <router-view />
   </div>
@@ -8,7 +8,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent} from 'vue';
+import { computed, defineComponent} from 'vue';
+import { useRoute } from 'vue-router';
 
 import NavBar from './components/NavBar.vue'
 import Sidebar from './components/sidebar/Sidebar.vue'
@@ -19,7 +20,9 @@ export default defineComponent({
     Sidebar 
   },
   setup(){
-    return {sidebarWidth}
+    const route = useRoute()
+    const showBars = computed(() => route.name !== 'Login') 
+    return {sidebarWidth, showBars}
   }
 })
 </script>

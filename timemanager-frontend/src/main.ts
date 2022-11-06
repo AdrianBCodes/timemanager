@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
+import store from "./store/index";
 import PrimeVue from 'primevue/config'
 import ButtonPrime from 'primevue/button'
 import InputText from 'primevue/inputtext'
@@ -17,7 +18,7 @@ import Textarea from 'primevue/textarea';
 import Paginator from 'primevue/paginator';
 import Tooltip from 'primevue/tooltip';
 import Dropdown from 'primevue/dropdown';
-
+import Card from 'primevue/card';
 
 
 
@@ -27,6 +28,7 @@ import 'primeicons/primeicons.css'
 
 const app = createApp(App)
 app.use(router)
+app.use(store)
 app.use(PrimeVue)
 app.use(ToastService)
 
@@ -43,6 +45,7 @@ app.component('Textarea', Textarea)
 app.component('Toast', Toast)
 app.component('Paginator', Paginator)
 app.component('Dropdown', Dropdown)
+app.component('Card', Card)
 
 app.directive('tooltip', Tooltip);
 app.mount('#app')

@@ -112,6 +112,9 @@ export default defineComponent({
         onMounted(() => {
             loadGetClients(params.value);
         })
+        watch(errorGetClients, () => {
+            console.log(errorGetClients.value)
+        })
 
         const filters1 = ref({
             'name': { value: null, matchMode: FilterMatchMode.CONTAINS },
