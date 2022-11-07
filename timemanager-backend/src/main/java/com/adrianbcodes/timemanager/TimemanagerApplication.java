@@ -27,26 +27,35 @@ public class TimemanagerApplication {
 		SpringApplication.run(TimemanagerApplication.class, args);
 	}
 
-	@Bean
-	CommandLineRunner commandLineRunner(ClientService clientService,
-										UserService userService,
-										ProjectService projectService,
-										TagService tagService,
-										TaskService taskService,
-										RoleRepository roleRepository){
-		return args -> {
-			roleRepository.save(new Role(ERole.ROLE_ADMIN));
-			roleRepository.save(new Role(ERole.ROLE_MODERATOR));
-			roleRepository.save(new Role(ERole.ROLE_USER));
-			Client client1 = clientService.saveClient(new Client("ClientName1", "aa"));
-			clientService.saveClient(new Client("ClientName3", "aa"));
-			clientService.saveClient(new Client("ClientName2", "bb"));
-			clientService.saveClient(new Client("ClientName4", "bb"));
-
-			User user1 = userService.saveUser(new User("name1", "surname1", "email1@email.com", "username1", "password1"));
-			Project project1 = projectService.saveProject(new Project("Project1", client1, user1));
-			tagService.saveTag(new Tag("tag1"));
-			taskService.saveTask(new Task("task1", "desc1", project1));
-		};
-	}
+//	@Bean
+//	CommandLineRunner commandLineRunner(ClientService clientService,
+//										UserService userService,
+//										ProjectService projectService,
+//										TagService tagService,
+//										TaskService taskService,
+//										RoleRepository roleRepository){
+//		return args -> {
+//			Role adminRole = roleRepository.save(new Role(ERole.ROLE_ADMIN));
+//			Role managerRole = roleRepository.save(new Role(ERole.ROLE_MANAGER));
+//			Role userRole = roleRepository.save(new Role(ERole.ROLE_USER));
+//			Client client1 = clientService.saveClient(new Client("ClientName1", "aa"));
+//			clientService.saveClient(new Client("ClientName3", "aa"));
+//			clientService.saveClient(new Client("ClientName2", "bb"));
+//			clientService.saveClient(new Client("ClientName4", "bb"));
+//
+//			HashSet<Role> userRoleSet = new HashSet<>();
+//			userRoleSet.add(userRole);
+//
+//			HashSet<Role> managerRoleSet = new HashSet<>();
+//			managerRoleSet.add(managerRole);
+//
+//			HashSet<Role> adminRoleSet = new HashSet<>();
+//			adminRoleSet.add(adminRole);
+//
+//
+//			Project project1 = projectService.saveProject(new Project("Project1", client1, user1));
+//			tagService.saveTag(new Tag("tag1"));
+//			taskService.saveTask(new Task("task1", "desc1", project1));
+//		};
+//	}
 }

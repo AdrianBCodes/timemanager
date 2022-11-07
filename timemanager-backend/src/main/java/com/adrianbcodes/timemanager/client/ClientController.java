@@ -4,6 +4,7 @@ import com.adrianbcodes.timemanager.client.infrastucture.ClientWriteModel;
 import com.adrianbcodes.timemanager.dto.ClientDTO;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
