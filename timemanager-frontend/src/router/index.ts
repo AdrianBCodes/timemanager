@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw, useRouter } from 'vue-router'
 import Login from '../views/Login.vue'
+import Register from '../views/Register.vue'
+import Profile from '../views/Profile.vue'
 import Clients from '../views/Clients.vue'
 import Projects from '../views/Projects.vue'
 import Users from '../views/Users.vue'
@@ -18,6 +20,19 @@ const routes: Array<RouteRecordRaw> = [
     path: '/login',
     name: 'Login',
     component: Login
+  },
+  {
+    path: '/register',
+    name: 'Register',
+    component: Register
+  },
+  {
+    path: '/profile',
+    name: 'Profile',
+    component: Profile,
+    meta: {
+      requiresAuth: true
+    }
   },
   {
     path: '/clients',
@@ -79,11 +94,15 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   if (to.matched.some(record => record.meta.requiresAuth)) {
     if (!store.getters.getLoggedIn) {
-      next({ name: 'Login' })
+      if(to.name === 'Register'){
+        next({ name: 'Register' })
+      } else{
+        next({ name: 'Login'})
+      }
     } else {
       next()
     }
-  } else if(store.getters.getLoggedIn && to.name === 'Login') {
+  } else if(store.getters.getLoggedIn && (to.name === 'Login' || to.name === 'Register')) {
     next({name: 'Clients'})
   } else {
     next()

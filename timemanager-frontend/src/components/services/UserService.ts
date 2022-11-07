@@ -2,6 +2,7 @@ import User from "@/types/User";
 import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
+import authHeader from "./Auth-header";
 
 export default class UserService {
     toast = useToast();
@@ -11,9 +12,12 @@ export default class UserService {
         const totalRecords = ref(0)
         const users = ref<User[]>([])
         const errorGetUsers = ref(null)
+        const headers = new Headers()
+        headers.append('Authorization', authHeader())
+        headers.append("Content-Type", "text/plain")
         const requestOptions = {
             method: "GET",
-            headers: { "Content-Type": "text/plain" }
+            headers: headers
           };
         const loadGetUsers = async (params = '') => {
             try{
@@ -36,9 +40,12 @@ export default class UserService {
         const addedUser = ref<User>({id: 0, name: '', surname: '', email: ''})
         const errorAddUser = ref(null)
         const loadAddUser = async (user: User) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify(user)
             };
             try{
@@ -60,9 +67,12 @@ export default class UserService {
         const editedUser = ref<User>({id: 0, name: '', surname: '', email: ''})
         const errorEditUser = ref(null)
         const loadEditUser = async (userId: number, user: User) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify(user)
               };
             try{
@@ -85,9 +95,11 @@ export default class UserService {
         const resp = ref(null)
         const errorDeleteUser = ref(null)
         const loadDeleteUser = async (userId: number) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
             const requestOptions = {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" }
+                headers: headers
               };
             try{
                 const data = await fetch('http://localhost:8080/api/v1/users/' + userId, requestOptions)

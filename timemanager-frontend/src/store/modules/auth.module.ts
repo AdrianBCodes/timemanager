@@ -1,4 +1,6 @@
 import AuthService from '@/components/services/AuthService';
+import { useToastService } from '@/components/services/ToastService';
+import { useToast } from 'primevue/usetoast';
 import { Commit } from 'vuex'
 
 const storedUser = localStorage.getItem('user');
@@ -9,6 +11,8 @@ if(storedUser !== null){
 const initialState = user
   ? { status: { loggedIn: true }, user }
   : { status: { loggedIn: false }, user: null };
+
+
 
 export const auth = {
   // namespaced: true,

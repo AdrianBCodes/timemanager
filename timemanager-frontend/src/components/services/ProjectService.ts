@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
 import ProjectWriteModel from "@/types/ProjectWriteModel";
+import authHeader from "./Auth-header";
 
 export default class ProjectService {
     toast = useToast();
@@ -12,9 +13,12 @@ export default class ProjectService {
         const totalRecords = ref(0)
         const projects = ref<Project[]>([])
         const errorGetProjects = ref(null)
+        const headers = new Headers()
+        headers.append('Authorization', authHeader())
+        headers.append("Content-Type", "text/plain")
         const requestOptions = {
             method: "GET",
-            headers: { "Content-Type": "text/plain" }
+            headers: headers
           };
         const loadGetProjects = async (params = '') => {
             try{
@@ -38,9 +42,12 @@ export default class ProjectService {
         const addedProject = ref<Project>({id: 0, name: '', client:{id:0, name: '', note: ''}, owner:{id:0, name:'', surname: '', email: '',}})
         const errorAddProject = ref(null)
         const loadAddProject = async (projectWM: ProjectWriteModel) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify(projectWM)
             };
             try{
@@ -62,9 +69,12 @@ export default class ProjectService {
         const editedProject = ref<Project>({id: 0, name: '', client:{id:0, name: '', note: ''}, owner:{id:0, name:'', surname: '', email: '',}})
         const errorEditProject = ref(null)
         const loadEditProject = async (projectId: number, project: ProjectWriteModel) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify(project)
               };
             try{
@@ -87,9 +97,11 @@ export default class ProjectService {
         const resp = ref(null)
         const errorDeleteProject = ref(null)
         const loadDeleteProject = async (projectId: number) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
             const requestOptions = {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" }
+                headers: headers
               };
             try{
                 const data = await fetch('http://localhost:8080/api/v1/projects/' + projectId, requestOptions)

@@ -2,6 +2,7 @@ import Tag from "@/types/Tag";
 import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
+import authHeader from "./Auth-header";
 
 export default class TagService {
     toast = useToast();
@@ -11,9 +12,12 @@ export default class TagService {
         const totalRecords = ref(0)
         const tags = ref<Tag[]>([])
         const error = ref(null)
+        const headers = new Headers()
+        headers.append('Authorization', authHeader())
+        headers.append("Content-Type", "text/plain")
         const requestOptions = {
             method: "GET",
-            headers: { "Content-Type": "text/plain" }
+            headers: headers
           };
         const load = async (params = '') => {
             try{
@@ -36,9 +40,12 @@ export default class TagService {
         const addedTag = ref<Tag>({id: 0, name: ''})
         const errorAdd = ref(null)
         const loadAddTag = async (tag: Tag) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify(tag)
             };
             try{
@@ -60,9 +67,12 @@ export default class TagService {
         const editedTag = ref<Tag>({id: 0, name: ''})
         const errorEdit = ref(null)
         const loadEditTag = async (tagId: number, tag: Tag) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify(tag)
               };
             try{
@@ -85,9 +95,11 @@ export default class TagService {
         const resp = ref(null)
         const errorDelete = ref(null)
         const loadDeleteTag = async (tagId: number) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
             const requestOptions = {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" }
+                headers: headers
               };
             try{
                 const data = await fetch('http://localhost:8080/api/v1/tags/' + tagId, requestOptions)

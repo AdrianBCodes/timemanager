@@ -2,6 +2,7 @@ import Task from "@/types/Task";
 import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
+import authHeader from "./Auth-header";
 
 export default class TaskService {
     toast = useToast();
@@ -11,9 +12,12 @@ export default class TaskService {
         const totalRecords = ref(0)
         const tasks = ref<Task[]>([])
         const errorGetTasks = ref(null)
+        const headers = new Headers()
+        headers.append('Authorization', authHeader())
+        headers.append("Content-Type", "text/plain")
         const requestOptions = {
             method: "GET",
-            headers: { "Content-Type": "text/plain" }
+            headers: headers
           };
         const loadGetTasks = async (params = '') => {
             try{
@@ -42,9 +46,12 @@ export default class TaskService {
         })
         const errorAddTask = ref(null)
         const loadAddTask = async (task: Task) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify(task)
             };
             try{
@@ -72,9 +79,12 @@ export default class TaskService {
         })
         const errorEditTask = ref(null)
         const loadEditTask = async (taskId: number, task: Task) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify(task)
               };
             try{
@@ -97,9 +107,11 @@ export default class TaskService {
         const resp = ref(null)
         const errorDeleteTask = ref(null)
         const loadDeleteTask = async (taskId: number) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
             const requestOptions = {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" }
+                headers: headers
               };
             try{
                 const data = await fetch('http://localhost:8080/api/v1/tasks/' + taskId, requestOptions)

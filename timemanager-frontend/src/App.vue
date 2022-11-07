@@ -1,6 +1,6 @@
 <template>
-  <NavBar class="fixed-header" v-if="showBars"/>
-  <Sidebar style="padding-top: 30px;" v-if="showBars"/>
+  <NavBar class="fixed-header"/>
+  <Sidebar style="padding-top: 50px;" v-if="showBars"/>
   <div class="content" :style="{'margin-left': sidebarWidth}">
   <router-view />
   </div>
@@ -21,7 +21,7 @@ export default defineComponent({
   },
   setup(){
     const route = useRoute()
-    const showBars = computed(() => route.name !== 'Login') 
+    const showBars = computed(() => route.name !== 'Login' && route.name !== 'Register') 
     return {sidebarWidth, showBars}
   }
 })

@@ -1,22 +1,23 @@
 <template>
     <Card class="card">
         <template #title>
-            <h2>Login</h2>
+            <h2>Register</h2>
         </template>
         <template #content>
+            <label for="email">Email</label>
+            <InputText @keydown.enter="register" id="email" v-model="email" type="text"></InputText>
             <label for="username">Username</label>
-            <InputText @keydown.enter="login" id="username" v-model="username" type="text"></InputText>
+            <InputText @keydown.enter="register" id="username" v-model="username" type="text"></InputText>
             <label for="password">Password</label>
-            <InputText @keydown.enter="login" id="password" v-model="password" type="password"></InputText>
+            <InputText @keydown.enter="register" id="password" v-model="password" type="password"></InputText>
         </template>
         <template #footer>
-        <Button @click="login" label="Login" class="p-button p-button-lg p-button-secondary" />
-    </template>
+            <Button @click="register" label="Register" class="p-button p-button-lg p-button-secondary" />
+        </template>
     </Card>
 </template>
   
   <script lang="ts">
-import { computed, watch } from '@vue/runtime-core'
   import { useStore } from 'vuex'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -27,23 +28,23 @@ import { useToast } from 'primevue/usetoast'
         const toast = useToast()
         const router = useRouter()
         const store = useStore()
-        const isLoggedIn = computed(() => store.state.auth.status.loggedIn)
+        const email = ref<string>("")
         const username = ref<string>("")
         const password = ref<string>("")
-        const login = () => {
-            store.dispatch('login', {username: username.value, password: password.value}).catch(() => {
-                toast.add({severity:'error', summary: 'Error', detail:'Login failure', life: 3000});
-            })
+        const register = () => {
+            store.dispatch('register', {username: username.value, password: password.value, email: email.value})
+                .then(() => {
+                    toast.add({severity:'info', summary: 'Success', detail:'Registration was successfull', life: 3000})
+                    router.push({name: 'Login'})
+                })
+                .catch(() => toast.add({severity:'error', summary: 'Error', detail:'Registration failure', life: 3000}))
             username.value = ''
             password.value = ''
+            email.value = ''
+            
         }
-        watch(isLoggedIn, (s) => {
-            if(s === true){
-                router.push({name: 'Clients'})
-            }
-        })
 
-        return { username, password, login }
+        return { username, password, email, register }
         }
     }
   </script>
@@ -52,7 +53,7 @@ import { useToast } from 'primevue/usetoast'
     .card {
     margin: auto;
     position: absolute;
-    top: 30%;
+    top: 35%;
     left: 50%;
     -ms-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%);

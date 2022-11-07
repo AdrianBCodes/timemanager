@@ -13,9 +13,7 @@ export default class ClientService {
         const clients = ref<Client[]>([])
         const errorGetClients = ref()
         const headers = new Headers()
-        console.log(authHeader())
         headers.append('Authorization', authHeader())
-        headers.append("Content-Type", "application/json")
         const requestOptions = {
             method: "GET",
             headers: headers
@@ -45,9 +43,12 @@ export default class ClientService {
         })
         const errorAddClient = ref(null)
         const loadAddClient = async (client: Client) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "POST",
-                headers: { "Content-Type": "application/json"},
+                headers: headers,
                 body: JSON.stringify(client)
             };
             try{
@@ -73,9 +74,12 @@ export default class ClientService {
         })
         const errorEditClient = ref(null)
         const loadEditClient = async (clientId: number, client: Client) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
+            headers.append("Content-Type", "application/json")
             const requestOptions = {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: headers,
                 body: JSON.stringify(client)
               };
             try{
@@ -98,9 +102,11 @@ export default class ClientService {
         const resp = ref(null)
         const errorDeleteClient = ref(null)
         const loadDeleteClient = async (clientId: number) => {
+            const headers = new Headers()
+            headers.append('Authorization', authHeader())
             const requestOptions = {
                 method: "DELETE",
-                headers: { "Content-Type": "application/json" }
+                headers: headers
               };
             try{
                 const data = await fetch('http://localhost:8080/api/v1/clients/' + clientId, requestOptions)

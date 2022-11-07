@@ -127,10 +127,6 @@ export default defineComponent({
         onMounted(() => {
             loadGetUsers(params.value);
         })
-        
-        watch(users, (taaag) => {
-            console.log(taaag)
-        })
         const filters1 = ref({
             'name': { value: null, matchMode: FilterMatchMode.CONTAINS },
             'surname': { value: null, matchMode: FilterMatchMode.CONTAINS },

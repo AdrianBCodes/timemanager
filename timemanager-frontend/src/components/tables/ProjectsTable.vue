@@ -137,7 +137,6 @@ import ClientService from '../services/ClientService';
 import UserService from '../services/UserService';
 import ProjectWriteModel from '@/types/ProjectWriteModel';
 import { useRouter } from 'vue-router'
-import { useStore } from 'vuex';
 
 export default defineComponent({
     setup() {
