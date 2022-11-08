@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
 import authHeader from "./Auth-header";
+import apiClient from "@/http-commons";
 
 export default class UserService {
     toast = useToast();
@@ -12,26 +13,15 @@ export default class UserService {
         const totalRecords = ref(0)
         const users = ref<User[]>([])
         const errorGetUsers = ref(null)
-        const headers = new Headers()
-        headers.append('Authorization', authHeader())
-        headers.append("Content-Type", "text/plain")
-        const requestOptions = {
-            method: "GET",
-            headers: headers
-          };
         const loadGetUsers = async (params = '') => {
-            try{
-                const res = await fetch('http://localhost:8080/api/v1/users?' + params, requestOptions)
-                if(!res.ok){
-                    throw Error('Failed to fetch Users')
-                }
-                page.value = await res.json()
+            await apiClient.get('/users?' + params).then(response => {
+                page.value = response.data
                 users.value = page.value!.content
                 totalRecords.value = page.value!.totalElements
-            } catch(e: any){
+            }).catch((e) => {
                 errorGetUsers.value = e;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
-            }
+            })
         }
         return { page, users, totalRecords, errorGetUsers, loadGetUsers}
     }
@@ -40,25 +30,13 @@ export default class UserService {
         const addedUser = ref<User>({id: 0, name: '', surname: '', email: ''})
         const errorAddUser = ref(null)
         const loadAddUser = async (user: User) => {
-            const headers = new Headers()
-            headers.append('Authorization', authHeader())
-            headers.append("Content-Type", "application/json")
-            const requestOptions = {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify(user)
-            };
-            try{
-                const data = await fetch('http://localhost:8080/api/v1/users', requestOptions)
-                if(!data.ok){
-                    throw Error('Adding user failed')
-                }
-                addedUser.value = await data.json()
+            await apiClient.post('/users', user).then(response => {
+                addedUser.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'User Added', life: 3000});
-            } catch(e: any){
+            }).catch((e) => {
                 errorAddUser.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
-            }
+            })
         }
         return { addedUser, errorAddUser, loadAddUser }
     }
@@ -67,51 +45,28 @@ export default class UserService {
         const editedUser = ref<User>({id: 0, name: '', surname: '', email: ''})
         const errorEditUser = ref(null)
         const loadEditUser = async (userId: number, user: User) => {
-            const headers = new Headers()
-            headers.append('Authorization', authHeader())
-            headers.append("Content-Type", "application/json")
-            const requestOptions = {
-                method: "PUT",
-                headers: headers,
-                body: JSON.stringify(user)
-              };
-            try{
-                const data = await fetch('http://localhost:8080/api/v1/users/' + userId, requestOptions)
-                if(!data.ok){
-                    throw Error('Editing user failed')
-                }
-                editedUser.value = await data.json()
+            await apiClient.put('/users/' + userId, user).then(response => {
+                editedUser.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'User Edited', life: 3000});
-            } catch(e: any){
+            }).catch((e) => {
                 errorEditUser.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
-            }
+            })
         }
         return { editedUser, errorEditUser, loadEditUser }
     }
 
     deleteUser = () => {
-        
         const resp = ref(null)
         const errorDeleteUser = ref(null)
         const loadDeleteUser = async (userId: number) => {
-            const headers = new Headers()
-            headers.append('Authorization', authHeader())
-            const requestOptions = {
-                method: "DELETE",
-                headers: headers
-              };
-            try{
-                const data = await fetch('http://localhost:8080/api/v1/users/' + userId, requestOptions)
-                if(!data.ok){
-                    throw Error('Delete user failed')
-                }
-                resp.value = await data.json();
+            await apiClient.delete('/users/' + userId).then(response => {
+                resp.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'User Deleted', life: 3000});
-            } catch(e: any){
+            }).catch((e) => {
                 errorDeleteUser.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
-            }
+            })
         }
         return {resp, errorDeleteUser, loadDeleteUser }
     }

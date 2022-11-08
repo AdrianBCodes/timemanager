@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
 import authHeader from "./Auth-header";
+import apiClient from "@/http-commons";
 
 export default class TagService {
     toast = useToast();
@@ -12,26 +13,15 @@ export default class TagService {
         const totalRecords = ref(0)
         const tags = ref<Tag[]>([])
         const error = ref(null)
-        const headers = new Headers()
-        headers.append('Authorization', authHeader())
-        headers.append("Content-Type", "text/plain")
-        const requestOptions = {
-            method: "GET",
-            headers: headers
-          };
         const load = async (params = '') => {
-            try{
-                const res = await fetch('http://localhost:8080/api/v1/tags?' + params, requestOptions)
-                if(!res.ok){
-                    throw Error('Failed to fetch Tags')
-                }
-                page.value = await res.json()
+            await apiClient.get('/tags?' + params).then(response => {
+                page.value = response.data
                 tags.value = page.value!.content
                 totalRecords.value = page.value!.totalElements
-            } catch(e: any){
+            }).catch((e) => {
                 error.value = e;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
-            }
+            })
         }
         return { page, tags, totalRecords, error, load}
     }
@@ -40,25 +30,13 @@ export default class TagService {
         const addedTag = ref<Tag>({id: 0, name: ''})
         const errorAdd = ref(null)
         const loadAddTag = async (tag: Tag) => {
-            const headers = new Headers()
-            headers.append('Authorization', authHeader())
-            headers.append("Content-Type", "application/json")
-            const requestOptions = {
-                method: "POST",
-                headers: headers,
-                body: JSON.stringify(tag)
-            };
-            try{
-                const data = await fetch('http://localhost:8080/api/v1/tags', requestOptions)
-                if(!data.ok){
-                    throw Error('Adding tag failed')
-                }
-                addedTag.value = await data.json()
+            await apiClient.post('/tags', tag).then(response => {
+                addedTag.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Tag Added', life: 3000});
-            } catch(e: any){
+            }).catch((e) => {
                 errorAdd.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
-            }
+            })
         }
         return { addedTag, errorAdd, loadAddTag }
     }
@@ -67,51 +45,28 @@ export default class TagService {
         const editedTag = ref<Tag>({id: 0, name: ''})
         const errorEdit = ref(null)
         const loadEditTag = async (tagId: number, tag: Tag) => {
-            const headers = new Headers()
-            headers.append('Authorization', authHeader())
-            headers.append("Content-Type", "application/json")
-            const requestOptions = {
-                method: "PUT",
-                headers: headers,
-                body: JSON.stringify(tag)
-              };
-            try{
-                const data = await fetch('http://localhost:8080/api/v1/tags/' + tagId, requestOptions)
-                if(!data.ok){
-                    throw Error('Editing tag failed')
-                }
-                editedTag.value = await data.json()
+            await apiClient.put('/tags/' + tagId, tag).then(response => {
+                editedTag.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Tag Edited', life: 3000});
-            } catch(e: any){
+            }).catch((e) => {
                 errorEdit.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
-            }
+            })
         }
         return { editedTag, errorEdit, loadEditTag }
     }
 
     deleteTag = () => {
-        
         const resp = ref(null)
         const errorDelete = ref(null)
         const loadDeleteTag = async (tagId: number) => {
-            const headers = new Headers()
-            headers.append('Authorization', authHeader())
-            const requestOptions = {
-                method: "DELETE",
-                headers: headers
-              };
-            try{
-                const data = await fetch('http://localhost:8080/api/v1/tags/' + tagId, requestOptions)
-                if(!data.ok){
-                    throw Error('Delete tag failed')
-                }
-                resp.value = await data.json();
+            await apiClient.delete('/tags/' + tagId).then(response => {
+                resp.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Tag Deleted', life: 3000});
-            } catch(e: any){
+            }).catch((e) => {
                 errorDelete.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
-            }
+            })
         }
         return {resp, errorDelete, loadDeleteTag }
     }

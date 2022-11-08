@@ -2,12 +2,14 @@ import { createRouter, createWebHistory, RouteRecordRaw, useRouter } from 'vue-r
 import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Profile from '../views/Profile.vue'
+import PageNotFound from '../views/PageNotFound.vue'
 import Clients from '../views/Clients.vue'
 import Projects from '../views/Projects.vue'
 import Users from '../views/Users.vue'
 import Tags from '../views/Tags.vue'
 import Tasks from '../views/Tasks.vue'
 import ProjectUsers from '../views/ProjectUsers.vue'
+import PermissionDenied from '../views/PermissionDenied.vue'
 import store from '@/store/index'
 
 const routes: Array<RouteRecordRaw> = [
@@ -83,7 +85,15 @@ const routes: Array<RouteRecordRaw> = [
     meta: {
       requiresAuth: true
     }
-  }
+  },
+  {
+    path: '/denied',
+    name: 'Denied',
+    component: PermissionDenied
+  },
+  { path: '/:pathMatch(.*)*',
+    component: PageNotFound 
+  },
 ]
 
 const router = createRouter({
