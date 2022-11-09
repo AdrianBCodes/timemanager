@@ -3,7 +3,8 @@ import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
 import authHeader from "./Auth-header";
-import apiClient from "@/http-commons";
+import axios from "axios";
+import { baseURL } from "@/http-commons";
 
 export default class ClientService {
     toast = useToast();
@@ -14,7 +15,13 @@ export default class ClientService {
         const clients = ref<Client[]>([])
         const errorGetClients = ref()
         const loadGetClients = async (params = '') => {
-            await apiClient.get('/clients?' + params).then(response => {
+            await axios.get(baseURL + '/clients?' + params, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 page.value = response.data;
                 clients.value = page.value!.content;
                 totalRecords.value = page.value!.totalElements;
@@ -34,7 +41,13 @@ export default class ClientService {
         })
         const errorAddClient = ref(null)
         const loadAddClient = async (client: Client) => {
-            await apiClient.post('/clients', client).then(response => {
+            await axios.post(baseURL + '/clients', client, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+                }).then(response => {
                 addedClient.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Client Added', life: 3000});
             }).catch(e => {
@@ -53,7 +66,13 @@ export default class ClientService {
         })
         const errorEditClient = ref(null)
         const loadEditClient = async (clientId: number, client: Client) => {
-            apiClient.put('/clients/' + clientId, client).then(response => {
+            await axios.put(baseURL + '/clients/' + clientId, client, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 editedClient.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Client Edited', life: 3000});
             }).catch(e => {
@@ -69,7 +88,13 @@ export default class ClientService {
         const resp = ref(null)
         const errorDeleteClient = ref(null)
         const loadDeleteClient = async (clientId: number) => {
-            await apiClient.delete('/clients/' + clientId).then(response => {
+            await axios.delete(baseURL + '/clients/' + clientId, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 resp.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Client Deleted', life: 3000});
             }).catch(e => {

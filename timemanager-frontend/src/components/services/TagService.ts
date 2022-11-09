@@ -2,8 +2,9 @@ import Tag from "@/types/Tag";
 import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
+import axios from "axios";
 import authHeader from "./Auth-header";
-import apiClient from "@/http-commons";
+import { baseURL } from "@/http-commons";
 
 export default class TagService {
     toast = useToast();
@@ -14,7 +15,13 @@ export default class TagService {
         const tags = ref<Tag[]>([])
         const error = ref(null)
         const load = async (params = '') => {
-            await apiClient.get('/tags?' + params).then(response => {
+            await axios.get(baseURL + '/tags?' + params, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 page.value = response.data
                 tags.value = page.value!.content
                 totalRecords.value = page.value!.totalElements
@@ -30,7 +37,13 @@ export default class TagService {
         const addedTag = ref<Tag>({id: 0, name: ''})
         const errorAdd = ref(null)
         const loadAddTag = async (tag: Tag) => {
-            await apiClient.post('/tags', tag).then(response => {
+            await axios.post(baseURL + '/tags', tag, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 addedTag.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Tag Added', life: 3000});
             }).catch((e) => {
@@ -45,7 +58,13 @@ export default class TagService {
         const editedTag = ref<Tag>({id: 0, name: ''})
         const errorEdit = ref(null)
         const loadEditTag = async (tagId: number, tag: Tag) => {
-            await apiClient.put('/tags/' + tagId, tag).then(response => {
+            await axios.put(baseURL + '/tags/' + tagId, tag, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 editedTag.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Tag Edited', life: 3000});
             }).catch((e) => {
@@ -60,7 +79,13 @@ export default class TagService {
         const resp = ref(null)
         const errorDelete = ref(null)
         const loadDeleteTag = async (tagId: number) => {
-            await apiClient.delete('/tags/' + tagId).then(response => {
+            await axios.delete(baseURL + '/tags/' + tagId, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 resp.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Tag Deleted', life: 3000});
             }).catch((e) => {

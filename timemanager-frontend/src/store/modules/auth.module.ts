@@ -1,6 +1,4 @@
 import AuthService from '@/components/services/AuthService';
-import { useToastService } from '@/components/services/ToastService';
-import { useToast } from 'primevue/usetoast';
 import { Commit } from 'vuex'
 
 const storedUser = localStorage.getItem('user');
@@ -20,6 +18,12 @@ export const auth = {
   getters: {
     getLoggedIn(state: any){
       return state.status.loggedIn
+    },
+    getUserToken(state: any){
+      if(state.user){
+        return state.user.accessToken
+      }
+      return ''
     }
   },
   actions: {

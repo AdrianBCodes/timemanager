@@ -3,8 +3,9 @@ import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
 import ProjectWriteModel from "@/types/ProjectWriteModel";
+import axios from "axios";
 import authHeader from "./Auth-header";
-import apiClient from "@/http-commons";
+import { baseURL } from "@/http-commons";
 
 export default class ProjectService {
     toast = useToast();
@@ -15,7 +16,13 @@ export default class ProjectService {
         const projects = ref<Project[]>([])
         const errorGetProjects = ref(null)
         const loadGetProjects = async (params = '') => {
-            await apiClient.get('/projects?' + params).then(response => {
+            await axios.get(baseURL + '/projects?' + params, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 page.value = response.data
                 projects.value = page.value!.content
                 totalRecords.value = page.value!.totalElements
@@ -31,7 +38,13 @@ export default class ProjectService {
         const addedProject = ref<Project>({id: 0, name: '', client:{id:0, name: '', note: ''}, owner:{id:0, name:'', surname: '', email: '',}})
         const errorAddProject = ref(null)
         const loadAddProject = async (projectWM: ProjectWriteModel) => {
-            await apiClient.post('/projects', projectWM).then(response => {
+            await axios.post(baseURL + '/projects', projectWM, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 addedProject.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Project Added', life: 3000});
             }).catch(e => {
@@ -46,7 +59,13 @@ export default class ProjectService {
         const editedProject = ref<Project>({id: 0, name: '', client:{id:0, name: '', note: ''}, owner:{id:0, name:'', surname: '', email: '',}})
         const errorEditProject = ref(null)
         const loadEditProject = async (projectId: number, project: ProjectWriteModel) => {
-            await apiClient.put('/projects/' + projectId, project).then(response => {
+            await axios.put(baseURL + '/projects/' + projectId, project, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 editedProject.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Project Edited', life: 3000});
             }).catch(e => {
@@ -62,7 +81,13 @@ export default class ProjectService {
         const resp = ref(null)
         const errorDeleteProject = ref(null)
         const loadDeleteProject = async (projectId: number) => {
-            await apiClient.delete('/projects/' + projectId).then(response => {
+            await axios.delete(baseURL + '/projects/' + projectId, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 resp.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Project Deleted', life: 3000});
             }).catch(e => {

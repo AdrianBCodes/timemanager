@@ -2,8 +2,9 @@ import Task from "@/types/Task";
 import { ref } from "vue";
 import { useToast } from "primevue/usetoast";
 import Page from "@/types/Page";
+import axios from "axios";
 import authHeader from "./Auth-header";
-import apiClient from "@/http-commons";
+import { baseURL } from "@/http-commons";
 
 export default class TaskService {
     toast = useToast();
@@ -14,7 +15,13 @@ export default class TaskService {
         const tasks = ref<Task[]>([])
         const errorGetTasks = ref(null)
         const loadGetTasks = async (params = '') => {
-            await apiClient.get('/tasks?' + params).then(response => {
+            await axios.get(baseURL + '/tasks?' + params, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 page.value = response.data
                 tasks.value = page.value!.content
                 totalRecords.value = page.value!.totalElements
@@ -36,7 +43,13 @@ export default class TaskService {
         })
         const errorAddTask = ref(null)
         const loadAddTask = async (task: Task) => {
-            await apiClient.post('/tasks', task).then(response => {
+            await axios.post(baseURL + '/tasks', task, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 addedTask.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Task Added', life: 3000});
             }).catch((e) => {
@@ -57,7 +70,13 @@ export default class TaskService {
         })
         const errorEditTask = ref(null)
         const loadEditTask = async (taskId: number, task: Task) => {
-            await apiClient.put('/tasks/' + taskId, task).then(response => {
+            await axios.put(baseURL + '/tasks/' + taskId, task, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 editedTask.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Task Edited', life: 3000});
             }).catch((e) => {
@@ -72,7 +91,13 @@ export default class TaskService {
         const resp = ref(null)
         const errorDeleteTask = ref(null)
         const loadDeleteTask = async (taskId: number) => {
-            await apiClient.put('/tasks/' + taskId).then(response => {
+            await axios.put(baseURL + '/tasks/' + taskId, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
                 resp.value = response.data
                 this.toast.add({severity:'success', summary: 'Successful', detail: 'Task Deleted', life: 3000});
             }).catch((e) => {
