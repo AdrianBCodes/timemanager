@@ -89,7 +89,7 @@ export default defineComponent({
         const filterNameParam = ref('')
         const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterNameParam.value)
         const tagService = ref(new TagService());
-        const { tags, totalRecords, error, load } = tagService.value.getTags()
+        const { tags, totalRecords, error, loadGetTags } = tagService.value.getTags()
         const isEditing = ref(false);
         const deleteTagDialog = ref(false)
         const submitted = ref(false)
@@ -97,7 +97,7 @@ export default defineComponent({
         const tag = ref<Tag>({ id: 0, name: ''})
 
         onMounted(() => {
-            load(params.value);
+            loadGetTags(params.value);
         })
         
         watch(tags, (taaag) => {
@@ -115,7 +115,7 @@ export default defineComponent({
         })
         watch([sizeParam, pageParam, sortParam, filterNameParam], (p) => {
             params.value = p.join('&')
-            load(params.value)
+            loadGetTags(params.value)
         })
 
         
@@ -132,7 +132,7 @@ export default defineComponent({
             const { addedTag, loadAddTag } = tagService.value.addTag();
             loadAddTag(tag.value);
             watch(addedTag, () => {
-                load(params.value)
+                loadGetTags(params.value)
             })
             tag.value = { id: 0, name: ''};
             tagDialog.value = false;
@@ -147,7 +147,7 @@ export default defineComponent({
             const { editedTag, loadEditTag } = tagService.value.editTag();
             loadEditTag(tag.value.id, tag.value);
             watch(editedTag, () => {
-                load(params.value)
+                loadGetTags(params.value)
             })
             tag.value = { id: 0, name: ''};
             tagDialog.value = false;
@@ -163,7 +163,7 @@ export default defineComponent({
             const { resp, loadDeleteTag } = tagService.value.deleteTag();
             loadDeleteTag(tag.value.id)
             watch(resp, () => {
-                load(params.value);
+                loadGetTags(params.value);
             })
             deleteTagDialog.value = false;
             tag.value = { id: 0, name: ''};

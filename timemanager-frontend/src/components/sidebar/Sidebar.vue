@@ -5,22 +5,27 @@
       @click = "toggleSidebar">
         <i class="pi pi-angle-double-left"></i>
       </span>
-      <SidebarLink to="/clients" icon="pi pi-users">Clients</SidebarLink>
-      <SidebarLink to="/projects" icon="pi pi-briefcase">Projects</SidebarLink>
-      <SidebarLink to="/users" icon="pi pi-user">Users</SidebarLink>
-      <SidebarLink to="/tags" icon="pi pi-tag">Tags</SidebarLink>
+      <SidebarLink v-if="!isUser()" to="/clients" icon="pi pi-users">Clients</SidebarLink>
+      <SidebarLink v-if="!isUser()" to="/projects" icon="pi pi-briefcase">Projects</SidebarLink>
+      <SidebarLink v-if="!isUser()" to="/users" icon="pi pi-user">Users</SidebarLink>
+      <SidebarLink v-if="!isUser()" to="/tags" icon="pi pi-tag">Tags</SidebarLink>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useStore } from 'vuex'
 import SidebarLink from './SidebarLink.vue'
 import { collapsed, toggleSidebar, sidebarWidth } from './state'
 
 export default defineComponent({
     components: {SidebarLink},
     setup() {
-        return { collapsed, toggleSidebar, sidebarWidth }
+      const store = useStore()
+
+      const isUser = () => store.getters.isUser
+
+      return { collapsed, toggleSidebar, sidebarWidth, isUser }
     },
 })
 </script>

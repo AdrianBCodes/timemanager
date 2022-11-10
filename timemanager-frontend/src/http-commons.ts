@@ -1,5 +1,6 @@
-import axios, { AxiosInstance } from "axios";
+import axios from "axios";
 import router from "./router";
+
 export const baseURL = "http://localhost:8080/api/v1";
 
 axios.interceptors.response.use(function (response) {

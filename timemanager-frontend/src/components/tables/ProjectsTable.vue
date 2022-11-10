@@ -25,21 +25,33 @@
                         :placeholder="`Search by name `" v-tooltip.top.focus="'Hit enter key to filter'" />
                 </template>
             </Column>
-            <Column field="client.name" header="Client" :sortable="true" fielterField="client.name" :showFilterMenu="false"
-                :show-clear-button="false">
-                <template #filter="{filterModel}">
-                    <InputText type="text" v-model="filterModel.value"
-                        @keydown.enter="onFilter('clientName', filterModel.value)" class="p-column-filter"
-                        :placeholder="`Search by client `" v-tooltip.top.focus="'Hit enter key to filter'" />
-                </template>
+            <Column header="Client" filterField="client" :showFilterMenu="false" :showClearButton="false">
+                    <template #body="{data}">
+                        <span>{{data.client.name}}</span>
+                    </template>
+                    <template #filter="{filterModel}">
+                        <MultiSelect v-model="filterModel.value" :filter="true" @change="onClientFilter(filterModel.value)" :options="clients" optionLabel="name" placeholder="Choose clients" class="p-column-filter">
+                            <template #option="slotProps">
+                                <div>
+                                    <span>{{slotProps.option.name}}</span>
+                                </div>
+                            </template>
+                        </MultiSelect>
+                    </template>
             </Column>
-            <Column field="owner.name" header="Owner" :sortable="true" fielterField="owner.name" :showFilterMenu="false"
-                :show-clear-button="false">
-                <template #filter="{filterModel}">
-                    <InputText type="text" v-model="filterModel.value"
-                        @keydown.enter="onFilter('ownerFullName', filterModel.value)" class="p-column-filter"
-                        :placeholder="`Search by owner `" v-tooltip.top.focus="'Hit enter key to filter'" />
-                </template>
+            <Column header="Owner" filterField="owner" :showFilterMenu="false" :showClearButton="false">
+                    <template #body="{data}">
+                        <span>{{data.owner.name + ' ' + data.owner.surname}}</span>
+                    </template>
+                    <template #filter="{filterModel}">
+                        <MultiSelect v-model="filterModel.value" :filter="true" @change="onOwnerFilter(filterModel.value)" :options="users" optionLabel="name" placeholder="Choose owners" class="p-column-filter">
+                            <template #option="slotProps">
+                                <div>
+                                    <span>{{slotProps.option.name + ' ' + slotProps.option.surname}}</span>
+                                </div>
+                            </template>
+                        </MultiSelect>
+                    </template>
             </Column>
             <Column :exportable="false" style="max-width:18rem ">
                 <template #body="slotProps">
@@ -69,8 +81,8 @@
                 <small class="p-error" v-if="submitted && !project.name">Name is required.</small>
             </div>
             <div class="field">
-                <label for="name">Client</label>
-                <Dropdown v-model="selectedClient" :options="clients" optionLabel="name" :filter="true" placeholder="Select a Client" :showClear="true">
+                <label for="client.name">Client</label>
+                <Dropdown v-model="selectedClient" :options="clients" optionLabel="client.name" :filter="true" placeholder="Select a Client" :showClear="true">
                     <template #value="slotProps">
                         <div v-if="slotProps.value">
                             <div>{{slotProps.value.name}}</div>
@@ -151,9 +163,9 @@ export default defineComponent({
         const sizeParam = ref('size=' + size.value)
         const sortParam = ref('')
         const filterNameParam = ref('')
-        const filterClientNameParam = ref('')
-        const filterOwnerNameParam = ref('')
-        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterClientNameParam.value + '&' + filterOwnerNameParam.value)
+        const filterClientsParam = ref('')
+        const filterOwnersParam = ref('')
+        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterClientsParam.value + '&' + filterOwnersParam.value)
         const projectService = ref(new ProjectService());
         const { projects, totalRecords, errorGetProjects, loadGetProjects } = projectService.value.getProjects()
         const isEditing = ref(false);
@@ -164,18 +176,22 @@ export default defineComponent({
         const selectedClient = ref<Client>()
         const selectedOwner = ref<User>()
         const clientService = ref(new ClientService());
+        // TODO - get all clients without paging 
         const { clients, errorGetClients, loadGetClients } = clientService.value.getClients()
+        // TODO - get all users(managers) without paging 
         const userService = ref(new UserService());
         const { users, errorGetUsers, loadGetUsers } = userService.value.getUsers()
 
         onMounted(() => {
             loadGetProjects(params.value);
+            loadGetClients()
+            loadGetUsers()
         })
 
         const filters1 = ref({
             'name': { value: null, matchMode: FilterMatchMode.CONTAINS },
-            'client.name': { value: null, matchMode: FilterMatchMode.CONTAINS },
-            'owner.name': { value: null, matchMode: FilterMatchMode.CONTAINS }
+            'client': { value: null, matchMode: FilterMatchMode.IN },
+            'owner': { value: null, matchMode: FilterMatchMode.IN }
         });
 
         watch(size, (s) => {
@@ -184,7 +200,7 @@ export default defineComponent({
         watch(currentPage, (cp) => {
             pageParam.value = 'page=' + cp
         })
-        watch([sizeParam, pageParam, sortParam, filterNameParam, filterClientNameParam, filterOwnerNameParam], (p) => {
+        watch([sizeParam, pageParam, sortParam, filterNameParam, filterClientsParam, filterOwnersParam], (p) => {
             params.value = p.join('&')
             loadGetProjects(params.value)
         })
@@ -279,7 +295,7 @@ export default defineComponent({
             offset.value = 0
         }
 
-        const onFilter = (prop: 'name' | 'clientName' | 'ownerFullName', input: string) => {
+        const onFilter = (prop: 'name', input: string) => {
             if (input === null) {
                 return;
             }
@@ -287,12 +303,28 @@ export default defineComponent({
             if(prop === 'name'){
                 filterNameParam.value = prop + '=' + input
             }
-            if(prop === 'clientName'){
-                filterClientNameParam.value = prop + '=' + input
+        }
+
+        const onClientFilter = (input: Client[]) => {
+            if (input === null) {
+                return;
             }
-            if(prop === 'ownerFullName'){
-                filterOwnerNameParam.value = prop + '=' + input
+            currentPage.value = 0
+            filterClientsParam.value = 'clientsIds='
+            input.forEach(c => {
+                filterClientsParam.value = filterClientsParam.value.concat(c.id.toString())
+            })
+        }
+
+        const onOwnerFilter = (input: User[]) => {
+            if (input === null) {
+                return;
             }
+            currentPage.value = 0
+            filterOwnersParam.value = 'ownersIds='
+            input.forEach(o => {
+                filterOwnersParam.value = filterOwnersParam.value.concat(o.id.toString())
+            })
         }
 
         const clearFilters = () => {
@@ -300,8 +332,8 @@ export default defineComponent({
             offset.value = 0
             sortParam.value = ''
             filterNameParam.value = ''
-            filterClientNameParam.value = ''
-            filterOwnerNameParam.value = ''
+            filterClientsParam.value = ''
+            filterOwnersParam.value = ''
             datatableKey.value++
         }
 
@@ -317,7 +349,7 @@ export default defineComponent({
             projects, errorGetProjects, currentPage, size, totalRecords, submitted, project, isEditing, projectDialog,
             openNew, openEdit, hideDialog, saveProject, renderComponent, deleteProjectDialog,
             confirmDeleteProject, deleteProjectById, editProject, onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey,
-            clients, users, selectedClient, selectedOwner, goToTasks, goToProjectUsers
+            clients, users, selectedClient, selectedOwner, goToTasks, goToProjectUsers, onClientFilter, onOwnerFilter
         }
     },
 })

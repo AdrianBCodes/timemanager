@@ -91,7 +91,7 @@ export default class TaskService {
         const resp = ref(null)
         const errorDeleteTask = ref(null)
         const loadDeleteTask = async (taskId: number) => {
-            await axios.put(baseURL + '/tasks/' + taskId, {
+            await axios.delete(baseURL + '/tasks/' + taskId, {
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json",

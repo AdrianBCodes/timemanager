@@ -33,6 +33,24 @@
                         :placeholder="`Search by description `" v-tooltip.top.focus="'Hit enter key to filter'" />
                 </template>
             </Column>
+            <Column header="Tags" filterField="tags" :showFilterMenu="false" :showClearButton="false" style="max-width:12rem">
+                    <template #body="{data}">
+                        <div style="display: flex; flex-wrap: wrap" >
+                            <div v-for="tag in data.tags" :key="tag.id" >
+                                <Tag style="margin-right:0.3rem">{{tag.name}}</Tag>
+                            </div>
+                        </div>
+                    </template>
+                    <template #filter="{filterModel}">
+                        <MultiSelect v-model="filterModel.value" :filter="true" @change="onTagsFilter(filterModel.value)" :options="tags" optionLabel="name" placeholder="Choose Tags" class="p-column-filter">
+                            <template #option="slotProps">
+                                <div>
+                                    <span>{{slotProps.option.name}}</span>
+                                </div>
+                            </template>
+                        </MultiSelect>
+                    </template>
+            </Column>
             <Column :exportable="false" style="max-width:12rem ">
                 <template #body="slotProps">
                     <Button icon="pi pi-pencil" class="p-button-rounded p-button-success"
@@ -60,6 +78,15 @@
                 <label for="description">Description</label>
                 <Textarea id="description" v-model="task.description" required="true" rows="3" cols="20" />
             </div>
+            <div class="field">
+                <MultiSelect v-model="selectedTags" :filter="true" :options="tags" optionLabel="name" placeholder="Choose Tags" class="p-column-filter">
+                    <template #option="slotProps">
+                        <div>
+                            <span>{{slotProps.option.name}}</span>
+                        </div>
+                    </template>
+                </MultiSelect>
+            </div>
             <template #footer>
                 <Button v-if="isEditing" label="Save" icon="pi pi-check " class="p-button" @click="editTask" />
                 <Button v-else-if="!isEditing" label="Save" icon="pi pi-check " class="p-button p-button-success"
@@ -77,6 +104,7 @@
                 <Button label="Yes" icon="pi pi-check" class="p-button p-button-success" @click="deleteTaskById" />
                 <Button label="No" icon="pi pi-times" class="p-button p-button-danger" @click="deleteTaskDialog = false" />
             </template>
+            
         </Dialog>
     </div>
 </template>
@@ -87,6 +115,8 @@ import { defineComponent } from 'vue';
 import Task from '@/types/Task';
 import TaskService from '../services/TaskService';
 import { FilterMatchMode } from 'primevue/api';
+import TagService from '../services/TagService';
+import Tag from '@/types/Tag';
 
 export default defineComponent({
     props: {
@@ -103,8 +133,9 @@ export default defineComponent({
         const sortParam = ref('')
         const projectIdParam = ref('projectId=' + props.projectId)
         const filterNameParam = ref('')
+        const filterTagsParam = ref('')
         const filterDescriptionParam = ref('')
-        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + projectIdParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterDescriptionParam.value)
+        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + projectIdParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterDescriptionParam.value  + '&' + filterTagsParam.value)
         const taskService = ref(new TaskService());
         const { tasks, totalRecords, errorGetTasks, loadGetTasks } = taskService.value.getTasks()
         const isEditing = ref(false);
@@ -119,13 +150,20 @@ export default defineComponent({
             tags: []
         })
 
+        // TODO - add multiselect to dialogs
+        const tagService = ref(new TagService());
+        const { tags, loadGetTags } = tagService.value.getTags()
+        const selectedTags = ref()
+
         onMounted(() => {
             loadGetTasks(params.value);
+            loadGetTags()
         })
 
         const filters1 = ref({
             'name': { value: null, matchMode: FilterMatchMode.CONTAINS },
-            'description': { value: null, matchMode: FilterMatchMode.CONTAINS }
+            'description': { value: null, matchMode: FilterMatchMode.CONTAINS },
+            'tags': {value: null, matchMode: FilterMatchMode.IN}
         });
 
         watch(size, (s) => {
@@ -139,9 +177,14 @@ export default defineComponent({
             loadGetTasks(params.value)
         })
 
+        watch(selectedTags, (s) => {
+            task.value.tags = s
+        })
+
         
         const openNew = () => {
             taskDialog.value = true;
+            loadGetTags()
         };
 
         const hideDialog = () => {
@@ -246,6 +289,17 @@ export default defineComponent({
             }
         }
 
+        const onTagsFilter = (input: Tag[]) => {
+            if (input === null) {
+                return;
+            }
+            currentPage.value = 0
+            filterTagsParam.value = 'tagsIds='
+            input.forEach(c => {
+                filterTagsParam.value = filterTagsParam.value.concat(c.id.toString())
+            })
+        }
+
         const clearFilters = () => {
             currentPage.value = 0
             offset.value = 0
@@ -257,8 +311,8 @@ export default defineComponent({
 
         return {
             tasks, errorGetTasks, currentPage, size, totalRecords, submitted, task, isEditing, taskDialog,
-            openNew, openEdit, hideDialog, saveTask, renderComponent, deleteTaskDialog,
-            confirmDeleteTask, deleteTaskById, editTask, onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey
+            openNew, openEdit, hideDialog, saveTask, renderComponent, deleteTaskDialog, onTagsFilter,
+            confirmDeleteTask, deleteTaskById, editTask, onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey, tags, selectedTags
         }
     },
 })
@@ -277,4 +331,5 @@ export default defineComponent({
     align-items: center;
     justify-content: space-between;
 }
+
 </style>

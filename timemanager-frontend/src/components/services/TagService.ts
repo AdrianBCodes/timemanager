@@ -14,7 +14,7 @@ export default class TagService {
         const totalRecords = ref(0)
         const tags = ref<Tag[]>([])
         const error = ref(null)
-        const load = async (params = '') => {
+        const loadGetTags = async (params = '') => {
             await axios.get(baseURL + '/tags?' + params, {
                 headers: {
                     "Accept": "application/json",
@@ -30,7 +30,7 @@ export default class TagService {
                 this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
             })
         }
-        return { page, tags, totalRecords, error, load}
+        return { page, tags, totalRecords, error, loadGetTags}
     }
 
     addTag = () => {

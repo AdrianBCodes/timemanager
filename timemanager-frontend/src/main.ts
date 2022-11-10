@@ -19,17 +19,15 @@ import Paginator from 'primevue/paginator';
 import Tooltip from 'primevue/tooltip';
 import Dropdown from 'primevue/dropdown';
 import Card from 'primevue/card';
-import { createWatcher }from 'next-vue-storage-watcher';
+import MultiSelect from 'primevue/multiselect';
+import Tag from 'primevue/tag';
 
 import 'primevue/resources/themes/bootstrap4-dark-blue/theme.css'
 import 'primevue/resources/primevue.min.css'
 import 'primeicons/primeicons.css'
 
-export const lsWatcher = createWatcher()
-
 const app = createApp(App)
 app.use(router)
-app.use(lsWatcher)
 app.use(store)
 app.use(PrimeVue)
 app.use(ToastService)
@@ -48,6 +46,8 @@ app.component('Toast', Toast)
 app.component('Paginator', Paginator)
 app.component('Dropdown', Dropdown)
 app.component('Card', Card)
+app.component('MultiSelect', MultiSelect)
+app.component('Tag', Tag)
 
 app.directive('tooltip', Tooltip);
 app.mount('#app')
