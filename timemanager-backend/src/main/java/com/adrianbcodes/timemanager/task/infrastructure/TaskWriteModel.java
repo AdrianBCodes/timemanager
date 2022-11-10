@@ -11,7 +11,7 @@ public class TaskWriteModel {
     private String name;
     private String description;
     private Long projectId;
-    private Set<Long> tagsId = new HashSet<>();
+    private Set<Tag> tags = new HashSet<>();
 
     public TaskWriteModel() {
     }
@@ -22,11 +22,11 @@ public class TaskWriteModel {
         this.projectId = projectId;
     }
 
-    public TaskWriteModel(String name, String description, Long projectId, Set<Long> tagsId) {
+    public TaskWriteModel(String name, String description, Long projectId, Set<Tag> tags) {
         this.name = name;
         this.description = description;
         this.projectId = projectId;
-        this.tagsId = tagsId;
+        this.tags = tags;
     }
 
     public String getName() {
@@ -53,11 +53,11 @@ public class TaskWriteModel {
         this.projectId = projectId;
     }
 
-    public Set<Long> getTagsId() {
-        return tagsId;
+    public Set<Tag> getTags() {
+        return tags;
     }
 
-    public void setTagsId(Set<Long> tagsId) {
-        this.tagsId = tagsId;
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
     }
 }

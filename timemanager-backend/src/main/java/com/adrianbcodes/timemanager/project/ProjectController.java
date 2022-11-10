@@ -37,23 +37,12 @@ public class ProjectController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "") String name,
-            @RequestParam(defaultValue = "") String clientName,
-            @RequestParam(defaultValue = "") String ownerFullName,
-            @RequestParam(defaultValue = "id,asc") String[] sort
+            @RequestParam(defaultValue = "") List<Long> clientsIds,
+            @RequestParam(defaultValue = "") List<Long> ownersIds,
+            @RequestParam(defaultValue = "id,asc") String sort
     ) {
-        List<Sort.Order> orders = new ArrayList<>();
 
-        if (sort[0].contains(",")) {
-            for (String sortOrder : sort) {
-                String[] _sort = sortOrder.split(",");
-                orders.add(new Sort.Order(getSortDirection(_sort[1]), _sort[0]));
-            }
-        } else {
-            orders.add(new Sort.Order(getSortDirection(sort[1]), sort[0]));
-        }
-        Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
-
-        Page<ProjectDTO> foundProjects = projectService.getAllProjectsPaged(name, clientName, ownerFullName, pageable).map(Project::convertToProjectDTO);
+        Page<ProjectDTO> foundProjects = projectService.getAllProjectsPaged(name, clientsIds, ownersIds, page, size, sort).map(Project::convertToProjectDTO);
         return ResponseEntity.ok(foundProjects);
     }
 
@@ -94,16 +83,5 @@ public class ProjectController {
     ResponseEntity<?> deleteProjectById(@PathVariable Long id) {
         projectService.deleteProjectById(id);
         return ResponseEntity.ok(id);
-    }
-
-
-
-    private Sort.Direction getSortDirection(String direction) {
-        if (direction.equals("asc")) {
-            return Sort.Direction.ASC;
-        } else if (direction.equals("desc")) {
-            return Sort.Direction.DESC;
-        }
-        return Sort.Direction.ASC;
     }
 }

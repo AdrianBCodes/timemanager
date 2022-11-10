@@ -17,13 +17,6 @@ public class Tag extends StatusAudit {
     @NotBlank
     private String name;
 
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST,CascadeType.REFRESH})
-    @JoinTable(
-            name = "tasks_tags",
-            joinColumns = @JoinColumn(name = "tag_id"),
-            inverseJoinColumns = @JoinColumn(name = "task_id"))
-    private Set<Task> tasks;
-
     public Tag() {
     }
 
@@ -50,14 +43,6 @@ public class Tag extends StatusAudit {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Set<Task> getTasks() {
-        return tasks;
-    }
-
-    public void setTasks(Set<Task> tasks) {
-        this.tasks = tasks;
     }
 
     public TagDTO convertToTagDTO(){

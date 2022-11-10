@@ -4,6 +4,7 @@ import com.adrianbcodes.timemanager.common.StatusAudit;
 import com.adrianbcodes.timemanager.dto.TaskDTO;
 import com.adrianbcodes.timemanager.project.Project;
 import com.adrianbcodes.timemanager.tag.Tag;
+import com.adrianbcodes.timemanager.user.User;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -21,12 +22,7 @@ public class Task extends StatusAudit {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     private Project project;
-
-    @ManyToMany(fetch = FetchType.LAZY, cascade = {CascadeType.MERGE, CascadeType.PERSIST,CascadeType.REFRESH})
-    @JoinTable(
-            name = "tasks_tags",
-            joinColumns = @JoinColumn(name = "task_id"),
-            inverseJoinColumns = @JoinColumn(name = "tag_id"))
+    @ManyToMany(fetch = FetchType.LAZY)
     private Set<Tag> tags = new HashSet<>();
 
     public Task() {

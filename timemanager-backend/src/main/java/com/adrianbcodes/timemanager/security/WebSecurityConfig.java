@@ -3,6 +3,7 @@ package com.adrianbcodes.timemanager.security;
 import com.adrianbcodes.timemanager.security.jwt.AuthEntryPointJwt;
 import com.adrianbcodes.timemanager.security.jwt.AuthTokenFilter;
 import com.adrianbcodes.timemanager.security.services.UserDetailsServiceImpl;
+import com.adrianbcodes.timemanager.user.role.ERole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -67,13 +68,16 @@ public class WebSecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests().antMatchers("/api/v1/auth/**").permitAll()
-                .and()
-                .authorizeRequests().antMatchers(
-                        "/api/v1/clients**",
-                        "/api/v1/projects**",
-                        "/api/v1/users**",
-                        "/api/v1/tags").hasAnyRole("MANAGER", "ADMIN")
-                .anyRequest().authenticated();
+                .antMatchers(
+                "/api/v1/clients",
+                "/api/v1/projects",
+                "/api/v1/users",
+                "/api/v1/tags",
+                "/api/v1/clients**",
+                "/api/v1/projects**",
+                "/api/v1/users**",
+                "/api/v1/tags**").hasAnyRole("MANAGER", "ADMIN", "ROLE_MANAGER", "ROLE_ADMIN");
+
 
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);

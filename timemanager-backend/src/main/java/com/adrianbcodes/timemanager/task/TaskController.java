@@ -67,7 +67,7 @@ public class TaskController {
                 .withName(taskWM.getName())
                 .withDescription(taskWM.getDescription())
                 .withProject(projectService.getProjectById(taskWM.getProjectId()))
-                .withTags(taskWM.getTagsId().stream().map(tagId -> tagService.getTagById(tagId)).collect(Collectors.toSet()))
+                .withTags(taskWM.getTags())
                 .build();
         TaskDTO added = taskService.saveTask(toAdd).convertToTaskDTO();
         return ResponseEntity.ok(added);
@@ -81,7 +81,7 @@ public class TaskController {
                 .withName(taskWM.getName())
                 .withDescription(taskWM.getDescription())
                 .withProject(projectService.getProjectById(taskWM.getProjectId()))
-                .withTags(taskWM.getTagsId().stream().map(tagId -> tagService.getTagById(tagId)).collect(Collectors.toSet()))
+                .withTags(taskWM.getTags())
                 .buildWithId();
         TaskDTO edited = taskService.saveTask(toEdit).convertToTaskDTO();
         return ResponseEntity.ok(edited);
