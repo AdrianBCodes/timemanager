@@ -39,7 +39,7 @@ import { useToast } from 'primevue/usetoast'
         }
         watch(isLoggedIn, (s) => {
             if(s === true){
-                router.push({name: 'Clients'})
+                router.push({name: 'Tracker'})
             }
         })
 

@@ -1,14 +1,14 @@
 <template>
-    Tracker
+    <TrackersTable/>
   </template>
   
   <script lang="ts">
   
-  import ClientsTable from '@/components/tables/ClientsTable.vue'
   import { defineComponent} from 'vue';
+  import TrackersTable from '@/components/tables/TrackersTable.vue'
   export default defineComponent({
   components: {
-    ClientsTable
+    TrackersTable
   }
   })
   </script>

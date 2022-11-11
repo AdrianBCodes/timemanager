@@ -3,6 +3,7 @@ import Login from '../views/Login.vue'
 import Register from '../views/Register.vue'
 import Profile from '../views/Profile.vue'
 import PageNotFound from '../views/PageNotFound.vue'
+import Tracker from '../views/Tracker.vue'
 import Clients from '../views/Clients.vue'
 import Projects from '../views/Projects.vue'
 import Users from '../views/Users.vue'
@@ -15,7 +16,7 @@ import store from '@/store/index'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
-    redirect: '/clients',
+    redirect: '/tracker',
     name: 'Home'
   },
   {
@@ -32,6 +33,14 @@ const routes: Array<RouteRecordRaw> = [
     path: '/profile',
     name: 'Profile',
     component: Profile,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/tracker',
+    name: 'Tracker',
+    component: Tracker,
     meta: {
       requiresAuth: true
     }
@@ -113,7 +122,7 @@ router.beforeEach((to, from, next) => {
       next()
     }
   } else if(store.getters.getLoggedIn && (to.name === 'Login' || to.name === 'Register')) {
-    next({name: 'Clients'})
+    next({name: 'Tracker'})
   } else {
     next()
   }

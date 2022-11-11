@@ -137,7 +137,7 @@ export default defineComponent({
         const filterDescriptionParam = ref('')
         const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + projectIdParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterDescriptionParam.value  + '&' + filterTagsParam.value)
         const taskService = ref(new TaskService());
-        const { tasks, totalRecords, errorGetTasks, loadGetTasks } = taskService.value.getTasks()
+        const { tasks , totalRecords, errorGetTasks, loadGetTasks } = taskService.value.getTasks()
         const isEditing = ref(false);
         const deleteTaskDialog = ref(false)
         const submitted = ref(false)
