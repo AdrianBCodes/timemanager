@@ -1,13 +1,17 @@
 package com.adrianbcodes.timemanager.trackerEvent;
 
+import com.adrianbcodes.timemanager.dto.ProjectDTO;
 import com.adrianbcodes.timemanager.dto.TrackerEventDTO;
+import com.adrianbcodes.timemanager.project.Project;
 import com.adrianbcodes.timemanager.project.ProjectService;
 import com.adrianbcodes.timemanager.task.TaskService;
 import com.adrianbcodes.timemanager.trackerEvent.infrastructure.TrackerEventWriteModel;
 import com.adrianbcodes.timemanager.user.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -26,8 +30,19 @@ public class TrackerEventController {
     }
 
     @GetMapping()
-    ResponseEntity<List<TrackerEventDTO>> getAllTrackerEvents() {
-        List<TrackerEventDTO> foundTrackerEvents = trackerEventService.getAllTrackerEvents().stream().map(TrackerEvent::convertToTrackerEventDTO).toList();
+    ResponseEntity<Page<TrackerEventDTO>> getAllTrackerEventsPaged(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "") String description,
+            @RequestParam(defaultValue = "") List<Long> projectsIds,
+            @RequestParam(defaultValue = "") List<Long> tasksIds,
+            @RequestParam(required = false) Long duration,
+            @RequestParam(required = false) Date date,
+            @RequestParam(defaultValue = "") List<Long> usersIds,
+            @RequestParam(defaultValue = "id,asc") String sort
+    ) {
+
+        Page<TrackerEventDTO> foundTrackerEvents = trackerEventService.getAllTrackerEventsPaged(description, projectsIds, tasksIds, duration, date, usersIds, page, size, sort).map(TrackerEvent::convertToTrackerEventDTO);
         return ResponseEntity.ok(foundTrackerEvents);
     }
 

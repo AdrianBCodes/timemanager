@@ -5,17 +5,17 @@ import java.util.Date;
 public class TrackerEventDTO {
     private Long id;
     private String description;
-    private Long projectId;
-    private Long taskId;
+    private ProjectDTO project;
+    private TaskDTO task;
     private Long duration;
     private Date date;
     private Long userId;
 
-    public TrackerEventDTO(Long id, String description, Long projectId, Long taskId, Long duration, Date date, Long userId) {
+    public TrackerEventDTO(Long id, String description, ProjectDTO project, TaskDTO task, Long duration, Date date, Long userId) {
         this.id = id;
         this.description = description;
-        this.projectId = projectId;
-        this.taskId = taskId;
+        this.project = project;
+        this.task = task;
         this.duration = duration;
         this.date = date;
         this.userId = userId;
@@ -37,20 +37,20 @@ public class TrackerEventDTO {
         this.description = description;
     }
 
-    public Long getProjectId() {
-        return projectId;
+    public ProjectDTO getProject() {
+        return project;
     }
 
-    public void setProjectId(Long projectId) {
-        this.projectId = projectId;
+    public void setProject(ProjectDTO project) {
+        this.project = project;
     }
 
-    public Long getTaskId() {
-        return taskId;
+    public TaskDTO getTask() {
+        return task;
     }
 
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
+    public void setTask(TaskDTO task) {
+        this.task = task;
     }
 
     public Long getDuration() {

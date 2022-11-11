@@ -111,8 +111,8 @@ public class TrackerEvent {
         return new TrackerEventDTO(
                 this.id,
                 this.description,
-                this.project.getId(),
-                this.task.getId(),
+                this.project.convertToProjectDTO(),
+                this.task.convertToTaskDTO(),
                 this.duration,
                 this.date,
                 this.user.getId()

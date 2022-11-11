@@ -17,6 +17,11 @@ import java.util.Optional;
 public interface SqlProjectRepository extends ProjectRepository, JpaRepository<Project, Long>, QuerydslPredicateExecutor {
 
     Page<Project> findAll(Predicate predicate, Pageable pageable);
+
+    @Override
+    default Page<Project> getAllProjectsPaged(Predicate predicate, Pageable pageable){
+        return this.findAll(predicate, pageable);
+    }
     @Query("""
             select p from Project p
             where upper(p.name) like upper(concat('%', ?1, '%')) and p.client.id in ?2 and p.owner.id in ?3 and p.status = ?4""")
@@ -39,10 +44,6 @@ public interface SqlProjectRepository extends ProjectRepository, JpaRepository<P
     @Override
     default Project saveProject(Project project) {
         return this.save(project);
-    }
-    @Override
-    default Page<Project> getAllProjectsPaged(Predicate predicate, Pageable pageable){
-        return this.findAll(predicate, pageable);
     }
 
     @Override
