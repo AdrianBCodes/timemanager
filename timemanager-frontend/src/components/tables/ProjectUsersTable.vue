@@ -2,19 +2,37 @@
     <div class="table">
         <Toolbar class="mb-4">
             <template #start>
-                <Button label="New" icon="pi pi-plus" class="p-button p-button-success" @click="openNew" />
+                <Button label="Back" icon="pi pi-angle-left" class="p-button p-button-primary" @click="backToProjects()"/>
             </template>
         </Toolbar>
 
-        <DataTable :key="datatableKey" :value="tasks" showGridlines stripedRows responsiveLayout="scroll"
+        <DataTable :key="datatableKey" :value="users" showGridlines stripedRows responsiveLayout="scroll"
             :scrollable="true" scrollHeight="flex" :rows="size" @sort="onSort($event)" v-model:filters="filters1"
             filterDisplay="row">
             <template #header>
-                <div class="table-header-footer">
-                    Tasks
-                    <span class="p-input-icon-left ">
+                <div class="table-header">
+                    <div class="table-header-group-left" >
+                        Project Users
+                        <Dropdown v-model="selectedUser" :options="participantsToAdd" optionLabel="email" :filter="true" placeholder="Select User" :showClear="true" style="width: 16rem; margin-left: 1rem">
+                            <template #value="slotProps" >
+                                <div v-if="slotProps.value" style="padding-right: 6rem;" >
+                                    <div>{{slotProps.value.email}}</div>
+                                </div>
+                                <span v-else style="padding-right: 6rem;">
+                                    {{slotProps.placeholder}}
+                                </span>
+                            </template>
+                            <template #option="slotProps">
+                                <div>
+                                    <div>{{slotProps.option.email}}</div>
+                                </div>
+                            </template>
+                        </Dropdown>
+                            <Button label="Add" icon="pi pi-plus" class="p-button p-button-success" style="margin-left: 1rem" @click="addParticipant"/>
+                    </div>
+                    <div class="table-header-group-right" >
                         <Button label="Clear filters" class="p-button-secondary" @click="clearFilters()"></Button>
-                    </span>
+                    </div>
                 </div>
             </template>
             <Column field="name" header="Name" :sortable="true" filterField="name" :showFilterMenu="false"
@@ -25,75 +43,52 @@
                         :placeholder="`Search by name `" v-tooltip.top.focus="'Hit enter key to filter'" />
                 </template>
             </Column>
-            <Column field="description" header="Description" :sortable="true" fielterField="description" :showFilterMenu="false"
+            <Column field="surname" header="Surname" :sortable="true" filterField="surname" :showFilterMenu="false"
                 :show-clear-button="false">
                 <template #filter="{filterModel}">
                     <InputText type="text" v-model="filterModel.value"
-                        @keydown.enter="onFilter('description', filterModel.value)" class="p-column-filter"
-                        :placeholder="`Search by description `" v-tooltip.top.focus="'Hit enter key to filter'" />
+                        @keydown.enter="onFilter('surname', filterModel.value)" class="p-column-filter"
+                        :placeholder="`Search by surname `" v-tooltip.top.focus="'Hit enter key to filter'" />
+                </template>
+            </Column>
+            <Column field="email" header="Email" :sortable="true" filterField="email" :showFilterMenu="false"
+                :show-clear-button="false">
+                <template #filter="{filterModel}">
+                    <InputText type="text" v-model="filterModel.value"
+                        @keydown.enter="onFilter('email', filterModel.value)" class="p-column-filter"
+                        :placeholder="`Search by email `" v-tooltip.top.focus="'Hit enter key to filter'" />
                 </template>
             </Column>
             <Column :exportable="false" style="max-width:12rem ">
                 <template #body="slotProps">
-                    <Button icon="pi pi-pencil" class="p-button-rounded p-button-success"
-                        @click="openEdit(slotProps.data)" />
-                    <Button icon="pi pi-trash" class="p-button-rounded p-button-danger"
-                        @click="confirmDeleteTask(slotProps.data.id)" />
+                    <Button icon="pi pi-trash" class="p-button-rounded p-button-danger" @click="removeParticipant(slotProps.data.id)"/>
                 </template>
             </Column>
             <template #footer>
                 <Paginator :first="offset" :rows="size" :totalRecords="totalRecords" @page="onPage($event)"
                     :rowsPerPageOptions="[5,10,25,50,100]"
-                    currentPageReportTemplate="Showing {first} - {last} of {totalRecords} tasks"
+                    currentPageReportTemplate="Showing {first} - {last} of {totalRecords} users"
                     template="CurrentPageReport FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink RowsPerPageDropdown" />
             </template>
         </DataTable>
-
-        <Dialog v-model:visible="taskDialog" :style="{width: '450px'}" header="Task Details" :modal="true" :closable="false"
-            class="p-fluid">
-            <div class="field">
-                <label for="name">Name</label>
-                <InputText id="name" v-model.trim="task.name" required="true" autofocus />
-                <small class="p-error" v-if="submitted && !task.name">Name is required.</small>
-            </div>
-            <div class="field">
-                <label for="description">Description</label>
-                <Textarea id="description" v-model="task.description" required="true" rows="3" cols="20" />
-            </div>
-            <template #footer>
-                <Button v-if="isEditing" label="Save" icon="pi pi-check " class="p-button" @click="editTask" />
-                <Button v-else-if="!isEditing" label="Save" icon="pi pi-check " class="p-button p-button-success"
-                    @click="saveTask" />
-                    <Button label="Cancel" icon="pi pi-times" class="p-button p-button-danger" @click="hideDialog" />
-            </template>
-        </Dialog>
-
-        <Dialog v-model:visible="deleteTaskDialog" :style="{width: '450px'}" header="Confirm" :modal="true" :closable="false">
-            <div class="confirmation-content">
-                <i class="pi pi-exclamation-triangle" style="font-size: 2rem; margin-right: 0.5em;" />
-                <span v-if="task">Are you sure you want to delete <b>{{task.name}}</b>?</span>
-            </div>
-            <template #footer>
-                <Button label="Yes" icon="pi pi-check" class="p-button p-button-success" @click="deleteTaskById" />
-                <Button label="No" icon="pi pi-times" class="p-button p-button-danger" @click="deleteTaskDialog = false" />
-            </template>
-        </Dialog>
     </div>
 </template>
 
 <script lang="ts">
 import { onMounted, ref, watch } from 'vue';
 import { defineComponent } from 'vue';
-import Task from '@/types/Task';
-import TaskService from '../services/TaskService';
 import { FilterMatchMode } from 'primevue/api';
+import User from '@/types/User';
+import UserService from '../services/UserService';
+import ProjectService from '../services/ProjectService';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
     props: {
         projectId: Number
     },
     setup(props) {
-        const taskDialog = ref(false);
+        const router = useRouter()
         const datatableKey = ref(0)
         const offset = ref(0)
         const currentPage = ref(0)
@@ -103,29 +98,29 @@ export default defineComponent({
         const sortParam = ref('')
         const projectIdParam = ref('projectId=' + props.projectId)
         const filterNameParam = ref('')
-        const filterDescriptionParam = ref('')
-        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + projectIdParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterDescriptionParam.value)
-        const taskService = ref(new TaskService());
-        const { tasks, totalRecords, errorGetTasks, loadGetTasks } = taskService.value.getTasks()
-        const isEditing = ref(false);
-        const deleteTaskDialog = ref(false)
+        const filterSurnameParam = ref('')
+        const filterEmailParam = ref('')
+        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterSurnameParam.value + '&' + filterEmailParam.value + '&' + projectIdParam.value)
+        const userService = new UserService();
+        const projectService = new ProjectService();
+
+
+        const { users, totalRecords, errorGetUsers, loadGetUsers } = userService.getUsers()
+        const { participantsToAdd, loadGetParticipantsToAdd } = userService.getParticipantsToAdd()
+        const removeParticipantDialog = ref(false)
         const submitted = ref(false)
         const renderComponent = ref(true)
-        const task = ref<Task>({
-            id: 0,
-            name: '',
-            description: '',
-            projectId: props.projectId,
-            tags: []
-        })
+        const selectedUser = ref<User>()
 
         onMounted(() => {
-            loadGetTasks(params.value);
+            loadGetUsers(params.value);
+            loadGetParticipantsToAdd(props.projectId)
         })
 
         const filters1 = ref({
             'name': { value: null, matchMode: FilterMatchMode.CONTAINS },
-            'description': { value: null, matchMode: FilterMatchMode.CONTAINS }
+            'surname': { value: null, matchMode: FilterMatchMode.CONTAINS },
+            'email': { value: null, matchMode: FilterMatchMode.CONTAINS }
         });
 
         watch(size, (s) => {
@@ -134,84 +129,28 @@ export default defineComponent({
         watch(currentPage, (cp) => {
             pageParam.value = 'page=' + cp
         })
-        watch([sizeParam, pageParam, projectIdParam, sortParam, filterNameParam, filterDescriptionParam], (p) => {
+        watch([sizeParam, pageParam, sortParam, filterNameParam, filterSurnameParam, filterEmailParam, projectIdParam], (p) => {
             params.value = p.join('&')
-            loadGetTasks(params.value)
+            loadGetUsers(params.value)
         })
-
         
-        const openNew = () => {
-            taskDialog.value = true;
-        };
-
-        const hideDialog = () => {
-            taskDialog.value = false;
-            task.value = {
-            id: 0,
-            name: '',
-            description: '',
-            projectId: props.projectId,
-            tags: []
-        };
-        };
-
-        const saveTask = () => {
-            const { addedTask, loadAddTask } = taskService.value.addTask();
-            loadAddTask(task.value);
-            watch(addedTask, () => {
-                loadGetTasks(params.value)
-            })
-            task.value = {
-            id: 0,
-            name: '',
-            description: '',
-            projectId: props.projectId,
-            tags: []
-        };
-            taskDialog.value = false;
-        }
-        const openEdit = (cli: Task) => {
-            isEditing.value = true;
-            taskDialog.value = true;
-            task.value = { ...cli };
-        };
-
-        const editTask = () => {
-            const { editedTask, loadEditTask } = taskService.value.editTask();
-            loadEditTask(task.value.id, task.value);
-            watch(editedTask, () => {
-                loadGetTasks(params.value)
-            })
-            task.value = {
-            id: 0,
-            name: '',
-            description: '',
-            projectId: props.projectId,
-            tags: []
-        };
-            taskDialog.value = false;
-            isEditing.value = false;
-        }
-
-        const confirmDeleteTask = (c: number) => {
-            task.value.id = c;
-            deleteTaskDialog.value = true;
-        };
-
-        const deleteTaskById = () => {
-            const { resp, loadDeleteTask } = taskService.value.deleteTask();
-            loadDeleteTask(task.value.id)
+        const addParticipant = () => {
+            const {resp, loadAddParticipant} = projectService.addParticipant()
+            loadAddParticipant(props.projectId, selectedUser.value!.id)
             watch(resp, () => {
-                loadGetTasks(params.value);
+                loadGetUsers(params.value);
+                loadGetParticipantsToAdd(props.projectId)
             })
-            deleteTaskDialog.value = false;
-            task.value = {
-            id: 0,
-            name: '',
-            description: '',
-            projectId: props.projectId,
-            tags: []
+            selectedUser.value = undefined
         };
+
+        const removeParticipant = (userId: number) => {
+            const {resp, loadRemoveParticipant} = projectService.removeParticipant()
+            loadRemoveParticipant(props.projectId, userId)
+            watch(resp, () => {
+                loadGetUsers(params.value);
+                loadGetParticipantsToAdd(props.projectId)
+            })
         };
 
         const onPage = (event: any) => {
@@ -233,7 +172,7 @@ export default defineComponent({
             offset.value = 0
         }
 
-        const onFilter = (prop: 'name' | 'description', input: string) => {
+        const onFilter = (prop: 'name' | 'surname' | 'email', input: string) => {
             if (input === null) {
                 return;
             }
@@ -241,24 +180,30 @@ export default defineComponent({
             if(prop === 'name'){
                 filterNameParam.value = prop + '=' + input
             }
-            if(prop === 'description'){
-                filterDescriptionParam.value = prop + '=' + input
+            if(prop === 'email'){
+                filterSurnameParam.value = prop + '=' + input
+            }
+            if(prop === 'surname'){
+                filterEmailParam.value = prop + '=' + input
             }
         }
-
         const clearFilters = () => {
             currentPage.value = 0
             offset.value = 0
             sortParam.value = ''
             filterNameParam.value = ''
-            filterDescriptionParam.value = ''
+            filterSurnameParam.value = ''
+            filterEmailParam.value = ''
             datatableKey.value++
         }
 
+        const backToProjects = () => {
+            router.push({name: 'Projects'})
+        }
+
         return {
-            tasks, errorGetTasks, currentPage, size, totalRecords, submitted, task, isEditing, taskDialog,
-            openNew, openEdit, hideDialog, saveTask, renderComponent, deleteTaskDialog,
-            confirmDeleteTask, deleteTaskById, editTask, onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey
+            users, participantsToAdd, selectedUser, currentPage, size, totalRecords, submitted, task: selectedUser, renderComponent,
+            onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey, backToProjects, addParticipant, removeParticipant
         }
     },
 })
@@ -271,10 +216,12 @@ export default defineComponent({
 .p-button {
     margin-right: 0.25em;
 }
-
-.table-header-footer {
+.table-header {
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.table-header, .table-header-group-right, .table-header-group-left {
     display: flex;
     align-items: center;
-    justify-content: space-between;
 }
 </style>

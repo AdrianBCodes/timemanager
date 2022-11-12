@@ -1,20 +1,21 @@
 <template>
     <div class="table">
-        <Toolbar class="mb-4">
-            <template #start>
-                <Button label="New" icon="pi pi-plus" class="p-button p-button-success" @click="openNew" />
-            </template>
-        </Toolbar>
-        
         <DataTable :key="datatableKey" :value="projects" showGridlines stripedRows responsiveLayout="scroll"
             :scrollable="true" scrollHeight="flex" :rows="size" @sort="onSort($event)" v-model:filters="filters1"
             filterDisplay="row">
             <template #header>
-                <div class="table-header-footer">
-                    Projects
-                    <span class="p-input-icon-left ">
-                        <Button label="Clear filters" class="p-button-secondary" @click="clearFilters()"></Button>
-                    </span>
+                <div class="table-header">
+                    <div class="table-header-group-left" >
+                        Projects
+                        <div>
+                            <Button label="New" icon="pi pi-plus" class="p-button p-button-success" @click="openNew" style="margin-left: 1rem"/>
+                        </div>
+                    </div>
+                    <div class="table-header-group-right" >
+                        <span>
+                            <Button label="Clear filters" class="p-button-secondary" @click="clearFilters()"></Button>
+                        </span>
+                    </div>
                 </div>
             </template>
             <Column field="name" header="Name" :sortable="true" filterField="name" :showFilterMenu="false"
@@ -363,9 +364,12 @@ export default defineComponent({
     margin-right: 0.25em;
 }
 
-.table-header-footer {
+.table-header {
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.table-header, .table-header-group-right, .table-header-group-left {
     display: flex;
     align-items: center;
-    justify-content: space-between;
 }
 </style>

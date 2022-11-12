@@ -9,7 +9,8 @@
             <Column field="description" header="Description"></Column>
             <Column field="duration" header="Duration" style="max-width:8rem"></Column>
             <Column :exportable="false" style="max-width:12rem ">
-                <template #body="slotProps">
+                <!-- <template #body="slotProps"> -->
+                <template>
                     <Button icon="pi pi-pencil" class="p-button-rounded p-button-success" />
                     <Button icon="pi pi-trash" class="p-button-rounded p-button-danger" />
                 </template>
@@ -66,8 +67,8 @@ import TrackerEventService from '../services/TrackerEventService';
 
 export default defineComponent({
     setup() {
-        const trackerEventService = ref(new TrackerEventService)
-        const {trackerEvents, loadGetTrackerEvents} = trackerEventService.value.getTrackerEvents()
+        const trackerEventService = new TrackerEventService
+        const {trackerEvents, loadGetTrackerEvents} = trackerEventService.getTrackerEvents()
         const projects = ref()
         const tasks = ref()
         const description = ref()

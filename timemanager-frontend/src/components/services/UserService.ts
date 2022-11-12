@@ -95,4 +95,25 @@ export default class UserService {
         }
         return {resp, errorDeleteUser, loadDeleteUser }
     }
+
+    getParticipantsToAdd = () => {
+        const totalRecords = ref(0)
+        const participantsToAdd = ref<User[]>([])
+        const errorGetParticipantsToAdd = ref(null)
+        const loadGetParticipantsToAdd = async (projectId?: number) => {
+            await axios.get(baseURL + '/projects/' + projectId + '/participants/toAdd', {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
+                participantsToAdd.value = response.data
+            }).catch((e) => {
+                errorGetParticipantsToAdd.value = e;
+                this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
+            })
+        }
+        return { participantsToAdd, totalRecords, errorGetParticipantsToAdd, loadGetParticipantsToAdd}
+    }
 }

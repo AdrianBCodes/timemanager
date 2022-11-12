@@ -97,4 +97,46 @@ export default class ProjectService {
         }
         return {resp, errorDeleteProject, loadDeleteProject }
     }
+
+    addParticipant = () => {
+        const resp = ref(null)
+        const errorAddParticipant = ref(null)
+        const loadAddParticipant = async (projectId?: number, userId?: number) => {
+            await axios.put(baseURL + '/projects/' + projectId + '/participants/' + userId + '/add', {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
+                resp.value = response.data
+                this.toast.add({severity:'success', summary: 'Successful', detail: 'Participant added', life: 3000});
+            }).catch(e => {
+                errorAddParticipant.value = e.message;
+                this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
+            })
+        }
+        return {resp, errorAddParticipant, loadAddParticipant }
+    }
+
+    removeParticipant = () => {
+        const resp = ref(null)
+        const errorRemoveParticipant = ref(null)
+        const loadRemoveParticipant = async (projectId?: number, userId?: number) => {
+            await axios.put(baseURL + '/projects/' + projectId + '/participants/' + userId + '/remove', {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
+                resp.value = response.data
+                this.toast.add({severity:'success', summary: 'Successful', detail: 'Participant removed', life: 3000});
+            }).catch(e => {
+                errorRemoveParticipant.value = e.message;
+                this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
+            })
+        }
+        return {resp, errorRemoveParticipant, loadRemoveParticipant }
+    }
 }

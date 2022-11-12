@@ -2,7 +2,7 @@
     <div class="table">
         <Toolbar class="mb-4">
             <template #start>
-                <Button label="New" icon="pi pi-plus" class="p-button p-button-success" @click="openNew" />
+                <Button label="Back" icon="pi pi-angle-left" class="p-button p-button-primary" @click="backToProjects()"/>
             </template>
         </Toolbar>
 
@@ -10,11 +10,18 @@
             :scrollable="true" scrollHeight="flex" :rows="size" @sort="onSort($event)" v-model:filters="filters1"
             filterDisplay="row">
             <template #header>
-                <div class="table-header-footer">
-                    Tasks
-                    <span class="p-input-icon-left ">
-                        <Button label="Clear filters" class="p-button-secondary" @click="clearFilters()"></Button>
-                    </span>
+                <div class="table-header">
+                    <div class="table-header-group-left" >
+                        Tasks
+                        <div>
+                            <Button label="New" icon="pi pi-plus" class="p-button p-button-success" @click="openNew" style="margin-left: 1rem"/>
+                        </div>
+                    </div>
+                    <div class="table-header-group-right" >
+                        <span>
+                            <Button label="Clear filters" class="p-button-secondary" @click="clearFilters()"></Button>
+                        </span>
+                    </div>
                 </div>
             </template>
             <Column field="name" header="Name" :sortable="true" filterField="name" :showFilterMenu="false"
@@ -104,7 +111,6 @@
                 <Button label="Yes" icon="pi pi-check" class="p-button p-button-success" @click="deleteTaskById" />
                 <Button label="No" icon="pi pi-times" class="p-button p-button-danger" @click="deleteTaskDialog = false" />
             </template>
-            
         </Dialog>
     </div>
 </template>
@@ -117,12 +123,14 @@ import TaskService from '../services/TaskService';
 import { FilterMatchMode } from 'primevue/api';
 import TagService from '../services/TagService';
 import Tag from '@/types/Tag';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
     props: {
         projectId: Number
     },
     setup(props) {
+        const router = useRouter()
         const taskDialog = ref(false);
         const datatableKey = ref(0)
         const offset = ref(0)
@@ -309,9 +317,13 @@ export default defineComponent({
             datatableKey.value++
         }
 
+        const backToProjects = () => {
+            router.push({name: 'Projects'})
+        }
+
         return {
             tasks, errorGetTasks, currentPage, size, totalRecords, submitted, task, isEditing, taskDialog,
-            openNew, openEdit, hideDialog, saveTask, renderComponent, deleteTaskDialog, onTagsFilter,
+            openNew, openEdit, hideDialog, saveTask, renderComponent, deleteTaskDialog, onTagsFilter, backToProjects,
             confirmDeleteTask, deleteTaskById, editTask, onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey, tags, selectedTags
         }
     },
@@ -326,10 +338,13 @@ export default defineComponent({
     margin-right: 0.25em;
 }
 
-.table-header-footer {
+.table-header {
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+.table-header, .table-header-group-right, .table-header-group-left {
     display: flex;
     align-items: center;
-    justify-content: space-between;
 }
 
 </style>
