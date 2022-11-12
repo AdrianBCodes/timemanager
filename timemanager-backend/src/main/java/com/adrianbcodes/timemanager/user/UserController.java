@@ -28,21 +28,11 @@ public class UserController {
             @RequestParam(defaultValue = "") String name,
             @RequestParam(defaultValue = "") String surname,
             @RequestParam(defaultValue = "") String email,
-            @RequestParam(defaultValue = "id,asc") String[] sort
+            @RequestParam(defaultValue = "") Long projectId,
+            @RequestParam(defaultValue = "id,asc") String sort
     ) {
-        List<Sort.Order> orders = new ArrayList<>();
 
-        if (sort[0].contains(",")) {
-            for (String sortOrder : sort) {
-                String[] _sort = sortOrder.split(",");
-                orders.add(new Sort.Order(getSortDirection(_sort[1]), _sort[0]));
-            }
-        } else {
-            orders.add(new Sort.Order(getSortDirection(sort[1]), sort[0]));
-        }
-        Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
-
-        Page<UserDTO> foundUsers = userService.getAllUsersPaged(name, surname, email, pageable).map(User::convertToUserDTO);
+        Page<UserDTO> foundUsers = userService.getAllUsersPaged(name, surname, email, projectId, page, size, sort).map(User::convertToUserDTO);
         return ResponseEntity.ok(foundUsers);
     }
 

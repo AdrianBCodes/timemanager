@@ -1,5 +1,7 @@
 package com.adrianbcodes.timemanager.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public class TrackerEventDTO {
@@ -8,6 +10,7 @@ public class TrackerEventDTO {
     private ProjectDTO project;
     private TaskDTO task;
     private Long duration;
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private Date date;
     private Long userId;
 

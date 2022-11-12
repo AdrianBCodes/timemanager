@@ -84,4 +84,25 @@ public class ProjectController {
         projectService.deleteProjectById(id);
         return ResponseEntity.ok(id);
     }
+
+    @GetMapping("/{id}/participants/toAdd")
+    ResponseEntity<?> getParticipantsToAdd(@PathVariable Long id){
+        return ResponseEntity.ok(userService.getUsersReadyToAddToProject(id));
+    }
+
+    @PutMapping("/{id}/participants/{userId}/add")
+    ResponseEntity<?> addParticipant(@PathVariable Long id,
+                                     @PathVariable Long userId){
+        User userToAdd = userService.getUserById(userId);
+        Long editedProjectId = projectService.addParticipant(id, userToAdd);
+        return ResponseEntity.ok(editedProjectId);
+    }
+
+    @PutMapping("/{id}/participants/{userId}/remove")
+    ResponseEntity<?> removeParticipant(@PathVariable Long id,
+                                        @PathVariable Long userId){
+        User userToAdd = userService.getUserById(userId);
+        Long editedProjectId = projectService.removeParticipant(id, userToAdd);
+        return ResponseEntity.ok(editedProjectId);
+    }
 }

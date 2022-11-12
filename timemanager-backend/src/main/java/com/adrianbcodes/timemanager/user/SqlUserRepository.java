@@ -1,16 +1,24 @@
 package com.adrianbcodes.timemanager.user;
 
-import com.adrianbcodes.timemanager.common.StatusEnum;
+import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
-public interface SqlUserRepository extends UserRepository, JpaRepository<User, Long> {
-    Page<User> findByNameContainsIgnoreCaseAndSurnameContainsIgnoreCaseAndEmailContainsIgnoreCaseAndStatus(String name, String surname, String email, StatusEnum statusEnum, Pageable pageable);
+public interface SqlUserRepository extends UserRepository, JpaRepository<User, Long>, QuerydslPredicateExecutor<User> {
+
+    Page<User> findAll(Predicate predicate, Pageable pageable);
+    List<User> findAll(Predicate predicate);
+
+    @Override
+    default Page<User> getAllUsersPaged(Predicate predicate, Pageable pageable){
+        return this.findAll(predicate, pageable);
+    }
 
     Optional<User> findByUsername(String username);
     boolean existsByUsername(String username);
@@ -19,10 +27,9 @@ public interface SqlUserRepository extends UserRepository, JpaRepository<User, L
     default List<User> getAllUsers() {
         return this.findAll();
     }
-
     @Override
-    default Page<User> getAllUsersByNameContainsIgnoreCaseAndSurnameContainsIgnoreCaseAndEmailContainsIgnoreCase(String name, String surname, String email, Pageable pageable){
-        return this.findByNameContainsIgnoreCaseAndSurnameContainsIgnoreCaseAndEmailContainsIgnoreCaseAndStatus(name, surname, email, StatusEnum.ACTIVE, pageable);
+    default List<User> getAllUsers(Predicate predicate) {
+        return this.findAll(predicate);
     }
 
     @Override

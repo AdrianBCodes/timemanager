@@ -2,15 +2,12 @@ package com.adrianbcodes.timemanager.project;
 
 import com.adrianbcodes.timemanager.client.Client;
 import com.adrianbcodes.timemanager.client.ClientBuilder;
-import com.adrianbcodes.timemanager.client.ClientService;
-import com.adrianbcodes.timemanager.client.FakeClientRepository;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
 import com.adrianbcodes.timemanager.user.FakeUserRepository;
 import com.adrianbcodes.timemanager.user.User;
 import com.adrianbcodes.timemanager.user.UserBuilder;
-import com.adrianbcodes.timemanager.user.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +20,7 @@ class ProjectServiceTest {
 
     @BeforeEach
     void init() {
-        projectService = new ProjectService(new FakeProjectRepository());
+        projectService = new ProjectService(new FakeProjectRepository(), new FakeUserRepository());
     }
 
     @Test

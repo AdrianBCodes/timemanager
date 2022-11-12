@@ -24,6 +24,9 @@ public class Project extends StatusAudit {
     @ManyToOne(fetch = FetchType.LAZY)
     private User owner;
     @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(	name = "project_participants",
+            joinColumns = @JoinColumn(name = "project_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> participants = new HashSet<>();
     @OneToMany(fetch = FetchType.LAZY)
     private Set<Task> tasks = new HashSet<>();

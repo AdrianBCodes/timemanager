@@ -3,29 +3,29 @@ package com.adrianbcodes.timemanager.project;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
+import com.adrianbcodes.timemanager.user.User;
+import com.adrianbcodes.timemanager.user.UserRepository;
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.PathBuilderFactory;
-import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAQuery;
 import org.springframework.data.domain.*;
-import org.springframework.data.jpa.repository.support.Querydsl;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ProjectService {
     private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
 
 
-    public ProjectService(ProjectRepository projectRepository) {
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository) {
         this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
     }
 
     List<Project> getAllProjects(){
@@ -70,6 +70,38 @@ public class ProjectService {
         projectRepository.deleteProject(toDelete);
     }
 
+    public Long addParticipant(Long id, User userToAdd) {
+        Project project = this.getProjectById(id);
+        Set<User> participants = project.getParticipants();
+        participants.add(userToAdd);
+        project.setParticipants(participants);
+
+        Set<Project> userProjects = userToAdd.getProjects();
+        userProjects.add(project);
+        userToAdd.setProjects(userProjects);
+
+        userRepository.saveUser(userToAdd);
+        this.saveProject(project);
+
+        return project.getId();
+    }
+
+    public Long removeParticipant(Long id, User userToRemove) {
+        Project project = this.getProjectById(id);
+        Set<User> participants = project.getParticipants();
+        participants.remove(userToRemove);
+        project.setParticipants(participants);
+
+        Set<Project> userProjects = userToRemove.getProjects();
+        userProjects.remove(project);
+        userToRemove.setProjects(userProjects);
+
+        userRepository.saveUser(userToRemove);
+        this.saveProject(project);
+
+        return project.getId();
+    }
+
     private Sort.Direction getSortDirection(String direction) {
         if (direction.equals("asc")) {
             return Sort.Direction.ASC;
@@ -78,4 +110,6 @@ public class ProjectService {
         }
         return Sort.Direction.ASC;
     }
+
+
 }
