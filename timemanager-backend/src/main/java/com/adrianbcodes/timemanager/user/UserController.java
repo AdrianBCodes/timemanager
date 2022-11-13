@@ -32,38 +32,35 @@ public class UserController {
             @RequestParam(defaultValue = "id,asc") String sort
     ) {
 
-        Page<UserDTO> foundUsers = userService.getAllUsersPaged(name, surname, email, projectId, page, size, sort).map(User::convertToUserDTO);
+        Page<UserDTO> foundUsers = userService.getAllUsersPaged(name, surname, email, projectId, page, size, sort)
+                .map(User::convertToUserDTO);
         return ResponseEntity.ok(foundUsers);
     }
 
     @GetMapping("{id}")
-    ResponseEntity<?> getUserById(@PathVariable Long id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id).convertToUserDTO());
     }
 
     @PostMapping
-    ResponseEntity<?> addUser(@RequestBody User user) {
-        return ResponseEntity.ok(userService.saveUser(user));
+    ResponseEntity<UserDTO> addUser(@RequestBody User user) {
+        return ResponseEntity.ok(userService.saveUser(user).convertToUserDTO());
     }
 
-    //TODO
     @PutMapping("{id}")
-    ResponseEntity<?> editUser(@PathVariable Long id, @RequestBody User user) {
-        return ResponseEntity.ok().build();
+    ResponseEntity<Long> editUser(@PathVariable Long id, @RequestBody User user) {
+        User toEdit = userService.getUserById(id);
+        toEdit.setName(user.getName());
+        toEdit.setSurname(user.getSurname());
+        toEdit.setEmail(user.getEmail());
+
+        userService.saveUser(toEdit);
+        return ResponseEntity.ok(toEdit.getId());
     }
 
     @DeleteMapping("{id}")
     ResponseEntity<?> deleteUserById(@PathVariable Long id) {
         userService.deleteUserById(id);
         return ResponseEntity.noContent().build();
-    }
-
-    private Sort.Direction getSortDirection(String direction) {
-        if (direction.equals("asc")) {
-            return Sort.Direction.ASC;
-        } else if (direction.equals("desc")) {
-            return Sort.Direction.DESC;
-        }
-        return Sort.Direction.ASC;
     }
 }

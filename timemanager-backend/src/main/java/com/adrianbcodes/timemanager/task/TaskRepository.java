@@ -10,6 +10,9 @@ import java.util.Optional;
 public interface TaskRepository {
     List<Task> getAllTasks();
     Page<Task> getAllTasksByNameLikeAndDescriptionLikeAndProject_Id(String name, String description, Long projectId, Pageable pageable);
+
+    List<Task> getAllTasksByProjectId(Long projectId);
+
     Optional<Task> getTaskById(Long id);
     Task saveTask(Task task);
     void deleteTask(Task task);

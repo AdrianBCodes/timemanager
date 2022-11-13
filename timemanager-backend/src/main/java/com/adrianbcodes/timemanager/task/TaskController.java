@@ -1,7 +1,5 @@
 package com.adrianbcodes.timemanager.task;
 
-import com.adrianbcodes.timemanager.client.Client;
-import com.adrianbcodes.timemanager.dto.ClientDTO;
 import com.adrianbcodes.timemanager.dto.TaskDTO;
 import com.adrianbcodes.timemanager.project.ProjectService;
 import com.adrianbcodes.timemanager.tag.TagService;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/tasks")
@@ -51,7 +48,7 @@ public class TaskController {
         }
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
 
-        Page<TaskDTO> foundTasks = taskService.getAllClientsPaged(name, description, projectId, pageable).map(Task::convertToTaskDTO);
+        Page<TaskDTO> foundTasks = taskService.getAllTasksPaged(name, description, projectId, pageable).map(Task::convertToTaskDTO);
         return ResponseEntity.ok(foundTasks);
     }
 
@@ -59,6 +56,14 @@ public class TaskController {
     ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
         TaskDTO foundTask = taskService.getTaskById(id).convertToTaskDTO();
         return ResponseEntity.ok(foundTask);
+    }
+
+    @GetMapping("/project/{id}")
+    ResponseEntity<List<TaskDTO>> getTasksByProjectId(@PathVariable Long id){
+        return ResponseEntity.ok(taskService.getAllTasksByProjectId(id)
+                .stream()
+                .map(Task::convertToTaskDTO)
+                .toList());
     }
 
     @PostMapping

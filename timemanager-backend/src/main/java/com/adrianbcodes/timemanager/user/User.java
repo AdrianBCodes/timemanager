@@ -31,6 +31,9 @@ public class User extends StatusAudit {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    @OneToMany(mappedBy = "owner", fetch = FetchType.LAZY)
+    private Set<Project> ownedProjects = new HashSet<>();
+
     @ManyToMany(fetch = FetchType.LAZY, mappedBy = "participants")
     private Set<Project> projects = new HashSet<>();
     public User() {
@@ -122,6 +125,14 @@ public class User extends StatusAudit {
 
     public void setProjects(Set<Project> projects) {
         this.projects = projects;
+    }
+
+    public Set<Project> getOwnedProjects() {
+        return ownedProjects;
+    }
+
+    public void setOwnedProjects(Set<Project> ownedProjects) {
+        this.ownedProjects = ownedProjects;
     }
 
     public UserDTO convertToUserDTO(){

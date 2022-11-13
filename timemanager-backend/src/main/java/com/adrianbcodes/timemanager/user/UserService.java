@@ -32,7 +32,7 @@ public class UserService {
         builder.and(user.status.eq(StatusEnum.ACTIVE));
 
         if(!name.isEmpty()){
-            builder.and(user.surname.contains(name));
+            builder.and(user.name.contains(name));
         }
         if(!surname.isEmpty()){
             builder.and(user.surname.contains(surname));

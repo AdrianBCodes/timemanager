@@ -25,7 +25,7 @@ public class FakeProjectRepository implements ProjectRepository{
 
     //TODO
     @Override
-    public Page<Project> getAllProjectsByNameContainsIgnoreCaseAndClient_IdInAndOwner_IdInAndStatus(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable) {
+    public List<Project> getAllProjects(Predicate predicate) {
         return null;
     }
 

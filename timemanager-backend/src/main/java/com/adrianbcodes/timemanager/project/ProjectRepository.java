@@ -10,8 +10,7 @@ import java.util.Optional;
 public interface ProjectRepository {
     Page<Project> getAllProjectsPaged(Predicate predicate, Pageable pageable);
     List<Project> getAllProjects();
-
-    Page<Project> getAllProjectsByNameContainsIgnoreCaseAndClient_IdInAndOwner_IdInAndStatus(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable);
+    List<Project> getAllProjects(Predicate predicate);
 
     Optional<Project> getProjectById(Long id);
     Project saveProject(Project project);

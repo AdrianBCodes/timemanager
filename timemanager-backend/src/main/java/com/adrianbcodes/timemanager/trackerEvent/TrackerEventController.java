@@ -9,10 +9,13 @@ import com.adrianbcodes.timemanager.trackerEvent.infrastructure.TrackerEventWrit
 import com.adrianbcodes.timemanager.user.UserService;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/trackerEvents")
@@ -88,5 +91,14 @@ public class TrackerEventController {
     ResponseEntity<?> deleteTrackerEventById(@PathVariable Long id) {
         trackerEventService.deleteTrackerEventById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/projects")
+    ResponseEntity<List<ProjectDTO>> getProjectsToTrack(){
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if(userDetails.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ROLE_USER"))){
+            return ResponseEntity.ok(projectService.getProjectsByUserUsername(userDetails.getUsername()).stream().map(Project::convertToProjectDTO).toList());
+        }
+        return ResponseEntity.ok(projectService.getAllProjects().stream().map(Project::convertToProjectDTO).toList());
     }
 }

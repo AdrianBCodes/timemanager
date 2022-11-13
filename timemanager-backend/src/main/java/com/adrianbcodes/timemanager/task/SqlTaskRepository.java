@@ -1,6 +1,5 @@
 package com.adrianbcodes.timemanager.task;
 
-import com.adrianbcodes.timemanager.client.Client;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,9 +11,9 @@ import java.util.Optional;
 
 public interface SqlTaskRepository extends TaskRepository, JpaRepository<Task, Long> {
 
-    Page<Task> findByNameContainsIgnoreCaseAndDescriptionContainsIgnoreCaseAndStatus(String name, String description, StatusEnum status, Pageable pageable);
-
     Page<Task> findByNameContainsIgnoreCaseAndDescriptionContainsIgnoreCaseAndProject_IdAndStatus(String name, String description, Long projectId, StatusEnum status, Pageable pageable);
+
+    List<Task> findByProject_Id(Long projectId);
 
 
     @Override
@@ -24,6 +23,11 @@ public interface SqlTaskRepository extends TaskRepository, JpaRepository<Task, L
     @Override
     default List<Task> getAllTasks() {
         return this.findAll();
+    }
+
+    @Override
+    default List<Task> getAllTasksByProjectId(Long projectId) {
+        return this.findByProject_Id(projectId);
     }
 
     @Override

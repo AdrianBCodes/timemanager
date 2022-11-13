@@ -28,7 +28,7 @@ public class ProjectService {
         this.userRepository = userRepository;
     }
 
-    List<Project> getAllProjects(){
+    public List<Project> getAllProjects(){
         return projectRepository.getAllProjects().stream().filter(project -> project.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
@@ -37,8 +37,11 @@ public class ProjectService {
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        builder.and(project.name.contains(name)).and(project.status.eq(StatusEnum.ACTIVE));
+        builder.and(project.status.eq(StatusEnum.ACTIVE));
 
+        if(!name.isEmpty()){
+            builder.and(project.name.contains(name));
+        }
         if(!clientsIds.isEmpty()){
             builder.and(project.client.id.in(clientsIds));
         }
@@ -75,12 +78,6 @@ public class ProjectService {
         Set<User> participants = project.getParticipants();
         participants.add(userToAdd);
         project.setParticipants(participants);
-
-        Set<Project> userProjects = userToAdd.getProjects();
-        userProjects.add(project);
-        userToAdd.setProjects(userProjects);
-
-        userRepository.saveUser(userToAdd);
         this.saveProject(project);
 
         return project.getId();
@@ -91,15 +88,20 @@ public class ProjectService {
         Set<User> participants = project.getParticipants();
         participants.remove(userToRemove);
         project.setParticipants(participants);
-
-        Set<Project> userProjects = userToRemove.getProjects();
-        userProjects.remove(project);
-        userToRemove.setProjects(userProjects);
-
-        userRepository.saveUser(userToRemove);
         this.saveProject(project);
 
         return project.getId();
+    }
+
+    public List<Project> getProjectsByUserUsername(String username){
+        QProject project = QProject.project;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(project.status.eq(StatusEnum.ACTIVE)).and(project.participants.any().username.eq(username));
+
+        return projectRepository.getAllProjects(builder);
+
     }
 
     private Sort.Direction getSortDirection(String direction) {

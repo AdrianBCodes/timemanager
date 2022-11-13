@@ -17,24 +17,18 @@ import java.util.Optional;
 public interface SqlProjectRepository extends ProjectRepository, JpaRepository<Project, Long>, QuerydslPredicateExecutor<Project> {
 
     Page<Project> findAll(Predicate predicate, Pageable pageable);
+    List<Project> findAll(Predicate predicate);
 
     @Override
     default Page<Project> getAllProjectsPaged(Predicate predicate, Pageable pageable){
         return this.findAll(predicate, pageable);
     }
-    @Query("""
-            select p from Project p
-            where upper(p.name) like upper(concat('%', ?1, '%')) and p.client.id in ?2 and p.owner.id in ?3 and p.status = ?4""")
-    Page<Project> findByNameContainsIgnoreCaseAndClient_IdInAndOwner_IdInAndStatus(String name, Collection<Long> clientsIds, Collection<Long> ownersIds, StatusEnum status, Pageable pageable);
-
     @Override
     default List<Project> getAllProjects() {
         return this.findAll();
     }
-
-    @Override
-    default Page<Project> getAllProjectsByNameContainsIgnoreCaseAndClient_IdInAndOwner_IdInAndStatus(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable){
-        return this.findByNameContainsIgnoreCaseAndClient_IdInAndOwner_IdInAndStatus(name, clientsIds, ownersIds, StatusEnum.ACTIVE, pageable);
+    default List<Project> getAllProjects(Predicate predicate) {
+        return this.findAll(predicate);
     }
     @Override
     default Optional<Project> getProjectById(Long id) {

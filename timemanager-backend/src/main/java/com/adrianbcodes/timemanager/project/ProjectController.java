@@ -3,7 +3,10 @@ package com.adrianbcodes.timemanager.project;
 import com.adrianbcodes.timemanager.client.Client;
 import com.adrianbcodes.timemanager.client.ClientService;
 import com.adrianbcodes.timemanager.dto.ProjectDTO;
+import com.adrianbcodes.timemanager.dto.TaskDTO;
+import com.adrianbcodes.timemanager.dto.UserDTO;
 import com.adrianbcodes.timemanager.project.infrastructure.ProjectWriteModel;
+import com.adrianbcodes.timemanager.task.Task;
 import com.adrianbcodes.timemanager.task.TaskService;
 import com.adrianbcodes.timemanager.user.User;
 import com.adrianbcodes.timemanager.user.UserService;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/projects")
@@ -86,12 +90,15 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}/participants/toAdd")
-    ResponseEntity<?> getParticipantsToAdd(@PathVariable Long id){
-        return ResponseEntity.ok(userService.getUsersReadyToAddToProject(id));
+    ResponseEntity<List<UserDTO>> getParticipantsToAdd(@PathVariable Long id){
+        return ResponseEntity.ok(userService.getUsersReadyToAddToProject(id)
+                .stream()
+                .map(User::convertToUserDTO)
+                .toList());
     }
 
     @PutMapping("/{id}/participants/{userId}/add")
-    ResponseEntity<?> addParticipant(@PathVariable Long id,
+    ResponseEntity<Long> addParticipant(@PathVariable Long id,
                                      @PathVariable Long userId){
         User userToAdd = userService.getUserById(userId);
         Long editedProjectId = projectService.addParticipant(id, userToAdd);
@@ -99,7 +106,7 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}/participants/{userId}/remove")
-    ResponseEntity<?> removeParticipant(@PathVariable Long id,
+    ResponseEntity<Long> removeParticipant(@PathVariable Long id,
                                         @PathVariable Long userId){
         User userToAdd = userService.getUserById(userId);
         Long editedProjectId = projectService.removeParticipant(id, userToAdd);
