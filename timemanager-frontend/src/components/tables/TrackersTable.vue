@@ -20,10 +20,10 @@
         </template>
         </DataTable>
 
-        <Toolbar style="margin-top: 0.5rem; padding: 1rem">
+        <Toolbar style="margin-top: 0.5rem; padding: 1rem; overflow: auto;">
             <template #start>
-                <Calendar inputId="icon" v-model="selectedDate" :showIcon="true" style="max-width:11rem; margin-right: 1.2rem" />
-                <Dropdown v-model="selectedProject" :options="projects" optionLabel="name" :filter="true" placeholder="Select Project" :showClear="true" style="width: 24rem; margin-right: 0.8rem">
+                <Calendar inputId="icon" v-model="selectedDate" :showIcon="true" style="max-width:11rem; margin-right: 1.2rem" dateFormat="dd/mm/yy"/>
+                <Dropdown v-model="selectedProject" :options="projectsToTrack" optionLabel="name" :filter="true" placeholder="Select Project" :showClear="true" style="width: 24rem; margin-right: 0.8rem">
                     <template #value="slotProps" >
                         <div v-if="slotProps.value" style="padding-right: 12rem;" >
                             <div>{{slotProps.value.name}}</div>
@@ -38,7 +38,9 @@
                         </div>
                     </template>
                 </Dropdown>
-                <Dropdown v-model="selectedTasks" :options="tasks" optionLabel="name" :filter="true" placeholder="Select Task" :showClear="true" style="width: 24rem; margin-right: 0.8rem">
+                <Dropdown v-model="selectedTask" :options="tasks" optionLabel="name" :filter="true" 
+                            placeholder="Select Task" :showClear="true" style="width: 24rem; margin-right: 0.8rem" 
+                            :disabled="selectedProject === null">
                     <template #value="slotProps" >
                         <div v-if="slotProps.value" style="padding-right: 13rem;" >
                             <div>{{slotProps.value.name}}</div>
@@ -54,36 +56,87 @@
                     </template>
                 </Dropdown>
                 <InputText type="text" v-model="description" style="width: 24rem; margin-right: 0.8rem"/>
-                <InputMask v-model="duration" mask="99:99" placeholder="00:00" style="max-width:6rem; margin-right: 0.8rem " />
+                <InputMask v-model="duration" mask="99:99" placeholder="00:00" style="max-width:6rem; margin-right: 1.5rem " />
+                <Button label="Add" icon="pi pi-plus" class="p-button p-button-primary" @click="addTrackerEvent" />
             </template>
         </Toolbar>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, onMounted, ref } from 'vue';
+import Project from '@/types/Project';
+import Task from '@/types/Task';
+import TrackerEventWriteModel from '@/types/TrackerEventWriteModel';
+import { defineComponent, onMounted, ref, watch } from 'vue';
+import { useStore } from 'vuex';
+import TaskService from '../services/TaskService';
 import TrackerEventService from '../services/TrackerEventService';
 
 
 export default defineComponent({
     setup() {
-        const trackerEventService = new TrackerEventService
+        const store = useStore()
+        const trackerEventService = new TrackerEventService()
+        const taskService = new TaskService()
         const {trackerEvents, loadGetTrackerEvents} = trackerEventService.getTrackerEvents()
-        const projects = ref()
-        const tasks = ref()
-        const description = ref()
-        const duration = ref()
+        const {projectsToTrack, loadGetProjectsToTrack} = trackerEventService.getProjectsToTrack()
+        const {tasks, loadGetTasksByProjectId} = taskService.getTasksByProjectId()
+        const description = ref<string>('')
+        const duration = ref<string>('')
         const selectedDate = ref()
-        const selectedProject = ref()
-        const selectedTasks = ref()
+        const selectedProject = ref<Project | null>()
+        const selectedTask = ref<Task | null>()
+        const currentUserId = () => {
+            return store.getters.getUserId;
+        }
 
         onMounted(() => {
             loadGetTrackerEvents()
+            loadGetProjectsToTrack()
         })
-        
+
+        watch(selectedProject, () => {
+            if(selectedProject.value !== null){
+                loadGetTasksByProjectId(selectedProject.value!.id)
+            }
+        })
+
+        watch(description, () => {
+            console.log(description.value)
+        })
+
+        const addTrackerEvent = () => {
+            const { addedTrackerEvent, errorAddTrackerEvent, loadAddTrackerEvent } = trackerEventService.addTrackerEvent();
+            const trackerEventToAdd = ref<TrackerEventWriteModel>({
+                description: description.value,
+                projectId: selectedProject.value!.id,
+                taskId: selectedTask.value!.id,
+                duration: durationStringToMinutes(duration.value),
+                date: selectedDate.value,
+                userId: currentUserId()
+            })
+            loadAddTrackerEvent(trackerEventToAdd.value);
+
+            watch(addedTrackerEvent, () => {
+                loadGetTrackerEvents();
+            })
+
+            description.value = ''
+            selectedProject.value = null
+            selectedTask.value = null
+            duration.value = ''
+            selectedDate.value = null
+        }
+
+        const durationStringToMinutes = (duration = '') =>{
+            const splittedDuration = duration.split(':');
+            const hours = Number(splittedDuration[0])
+            const minutes = Number(splittedDuration[1])
+            return 60 * hours + minutes;
+        }
 
         return {
-            trackerEvents, selectedDate, projects, selectedProject, tasks, selectedTasks, description, duration
+            trackerEvents, selectedDate, projectsToTrack, selectedProject, tasks, selectedTask, description, duration, addTrackerEvent
         }
     },
 })

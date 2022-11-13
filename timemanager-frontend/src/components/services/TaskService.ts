@@ -33,6 +33,26 @@ export default class TaskService {
         return { page, tasks, totalRecords, errorGetTasks, loadGetTasks}
     }
 
+    getTasksByProjectId = () => {
+        const tasks = ref<Task[]>([])
+        const errorGetTasksByProjectId = ref(null)
+        const loadGetTasksByProjectId = async (projectId: number) => {
+            await axios.get(baseURL + '/tasks/project/' + projectId, {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
+                tasks.value = response.data
+            }).catch(e => {
+                errorGetTasksByProjectId.value = e;
+                this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
+            })
+        }
+        return {tasks, errorGetTasksByProjectId, loadGetTasksByProjectId}
+    }
+
     addTask = () => {
         const addedTask = ref<Task>({
             id: 0,

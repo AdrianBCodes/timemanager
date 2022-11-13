@@ -25,6 +25,11 @@ export const auth = {
       }
       return false
     },
+    getUserId(state: any){
+      if(state.user){
+        return state.user.id
+      }
+    },
     getUserToken(state: any){
       if(state.user){
         return state.user.accessToken

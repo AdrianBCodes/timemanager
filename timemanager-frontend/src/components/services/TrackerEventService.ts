@@ -6,6 +6,7 @@ import authHeader from "./Auth-header";
 import axios from "axios";
 import { baseURL } from "@/http-commons";
 import TrackerEventWriteModel from "@/types/TrackerEventWriteModel";
+import Project from "@/types/Project";
 
 export default class TrackerEventService {
     toast = useToast();
@@ -34,10 +35,30 @@ export default class TrackerEventService {
         return { page, trackerEvents, totalRecords, errorGetTrackerEvents, loadGetTrackerEvents}
     }
 
+    getProjectsToTrack = () => {
+        const projectsToTrack = ref<Project[]>([])
+        const errorGetProjectsToTrack = ref()
+        const loadGetProjectsToTrack = async () => {
+            await axios.get(baseURL + '/trackerEvents/projects', {
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+            }).then(response => {
+                projectsToTrack.value = response.data;
+            }).catch((e) => {
+                errorGetProjectsToTrack.value = e.message;
+                this.toast.add({severity:'error', summary: 'Error', detail: 'Error fetching Tracker Events', life: 3000});
+            })
+        }
+        return {projectsToTrack, errorGetProjectsToTrack, loadGetProjectsToTrack}
+    }
+
     addTrackerEvent = () => {
         const addedTrackerEvent = ref<TrackerEvent>()
         const errorAddTrackerEvent = ref(null)
-        const loadAddTrackerEvent = async (trackerEventWM: TrackerEventWriteModel) => {
+        const loadAddTrackerEvent = async (trackerEventWM?: TrackerEventWriteModel) => {
             await axios.post(baseURL + '/trackerEvents', trackerEventWM, {
                 headers: {
                     "Accept": "application/json",

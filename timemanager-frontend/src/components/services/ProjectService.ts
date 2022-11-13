@@ -6,6 +6,7 @@ import ProjectWriteModel from "@/types/ProjectWriteModel";
 import axios from "axios";
 import authHeader from "./Auth-header";
 import { baseURL } from "@/http-commons";
+import Task from "@/types/Task";
 
 export default class ProjectService {
     toast = useToast();
@@ -97,6 +98,7 @@ export default class ProjectService {
         }
         return {resp, errorDeleteProject, loadDeleteProject }
     }
+    
 
     addParticipant = () => {
         const resp = ref(null)
