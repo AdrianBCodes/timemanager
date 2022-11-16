@@ -9,7 +9,7 @@
   export default defineComponent({
   components: {
     TrackersTable
-  }
+    }
   })
   </script>
   <style scoped>

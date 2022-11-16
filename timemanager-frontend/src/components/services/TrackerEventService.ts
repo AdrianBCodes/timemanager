@@ -12,11 +12,34 @@ export default class TrackerEventService {
     toast = useToast();
 
     getTrackerEvents = () => {
-        const page = ref<Page<TrackerEvent>>();
-        const totalRecords = ref(0)
         const trackerEvents = ref<TrackerEvent[]>([])
         const errorGetTrackerEvents = ref()
-        const loadGetTrackerEvents = async (params = '') => {
+        const loadGetTrackerEvents =async (date: Date) => {
+            await axios.get(baseURL + '/trackerEvents/current',  {
+                params:{
+                    dateString: date.toLocaleDateString('en-GB')
+                },
+                headers: {
+                    "Accept": "application/json",
+                    "Content-Type": "application/json",
+                    "Authorization": authHeader()
+                  }
+                }).then( response => {
+                    trackerEvents.value = response.data
+                }).catch((e) => {
+                    errorGetTrackerEvents.value = e.message
+                    this.toast.add({severity:'error', summary: 'Error', detail: 'Error fetching Tracker Events', life: 3000});
+                })
+        }
+        return {trackerEvents, errorGetTrackerEvents, loadGetTrackerEvents}
+    }
+
+    getTrackerEventsPaged = () => {
+        const page = ref<Page<TrackerEvent>>();
+        const totalRecords = ref(0)
+        const trackerEventsPaged = ref<TrackerEvent[]>([])
+        const errorGetTrackerEventsPaged = ref()
+        const loadGetTrackerEventsPaged = async (params = '') => {
             await axios.get(baseURL + '/trackerEvents?' + params, {
                 headers: {
                     "Accept": "application/json",
@@ -25,14 +48,14 @@ export default class TrackerEventService {
                   }
             }).then(response => {
                 page.value = response.data;
-                trackerEvents.value = page.value!.content;
+                trackerEventsPaged.value = page.value!.content;
                 totalRecords.value = page.value!.totalElements;
             }).catch((e) => {
-                errorGetTrackerEvents.value = e.message;
+                errorGetTrackerEventsPaged.value = e.message;
                 this.toast.add({severity:'error', summary: 'Error', detail: 'Error fetching Tracker Events', life: 3000});
             })
         }
-        return { page, trackerEvents, totalRecords, errorGetTrackerEvents, loadGetTrackerEvents}
+        return { page, trackerEventsPaged, totalRecords, errorGetTrackerEventsPaged, loadGetTrackerEventsPaged}
     }
 
     getProjectsToTrack = () => {
