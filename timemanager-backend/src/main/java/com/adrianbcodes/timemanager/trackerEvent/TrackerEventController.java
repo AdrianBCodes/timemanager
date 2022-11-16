@@ -13,9 +13,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
+import java.text.ParseException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/trackerEvents")
@@ -40,12 +41,20 @@ public class TrackerEventController {
             @RequestParam(defaultValue = "") List<Long> projectsIds,
             @RequestParam(defaultValue = "") List<Long> tasksIds,
             @RequestParam(required = false) Long duration,
-            @RequestParam(required = false) Date date,
+            @RequestParam(required = false) LocalDateTime date,
             @RequestParam(defaultValue = "") List<Long> usersIds,
             @RequestParam(defaultValue = "id,asc") String sort
     ) {
-
         Page<TrackerEventDTO> foundTrackerEvents = trackerEventService.getAllTrackerEventsPaged(description, projectsIds, tasksIds, duration, date, usersIds, page, size, sort).map(TrackerEvent::convertToTrackerEventDTO);
+        return ResponseEntity.ok(foundTrackerEvents);
+    }
+
+    @GetMapping("/current")
+    ResponseEntity<List<TrackerEventDTO>> getAllTrackerEventsForCurrentUserByDate(@RequestParam String dateString) throws ParseException {
+        dateString = dateString + " 00:00";
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+        LocalDateTime localDateTime = LocalDateTime.parse(dateString, formatter);
+        List<TrackerEventDTO> foundTrackerEvents = trackerEventService.getAllTrackerEventsForCurrentUserByDate(localDateTime).stream().map(TrackerEvent::convertToTrackerEventDTO).toList();
         return ResponseEntity.ok(foundTrackerEvents);
     }
 

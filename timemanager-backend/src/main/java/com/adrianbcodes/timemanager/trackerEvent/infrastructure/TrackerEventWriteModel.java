@@ -1,19 +1,19 @@
 package com.adrianbcodes.timemanager.trackerEvent.infrastructure;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class TrackerEventWriteModel {
     private String description;
     private Long projectId;
     private Long taskId;
     private Long duration;
-    private Date date;
+    private LocalDateTime date;
     private Long userId;
 
     public TrackerEventWriteModel() {
     }
 
-    public TrackerEventWriteModel(String description, Long projectId, Long taskId, Long duration, Date date, Long userId) {
+    public TrackerEventWriteModel(String description, Long projectId, Long taskId, Long duration, LocalDateTime date, Long userId) {
         this.description = description;
         this.projectId = projectId;
         this.taskId = taskId;
@@ -54,11 +54,11 @@ public class TrackerEventWriteModel {
         this.duration = duration;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

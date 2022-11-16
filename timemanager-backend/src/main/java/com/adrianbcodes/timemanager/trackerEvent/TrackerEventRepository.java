@@ -10,7 +10,8 @@ import java.util.Optional;
 public interface TrackerEventRepository {
     Page<TrackerEvent> getAllTrackerEventsPaged(Predicate predicate, Pageable pageable);
 
-    List<TrackerEvent> getAllTrackerEvents();
+    List<TrackerEvent> getAllTrackerEvents(Predicate predicate);
+
     Optional<TrackerEvent> getTrackerEventById(Long id);
     TrackerEvent saveTrackerEvent(TrackerEvent trackerEvent);
     void deleteTrackerEvent(TrackerEvent trackerEvent);

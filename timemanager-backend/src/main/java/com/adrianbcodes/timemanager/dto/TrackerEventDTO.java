@@ -2,7 +2,7 @@ package com.adrianbcodes.timemanager.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class TrackerEventDTO {
     private Long id;
@@ -11,10 +11,10 @@ public class TrackerEventDTO {
     private TaskDTO task;
     private Long duration;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date date;
+    private LocalDateTime date;
     private Long userId;
 
-    public TrackerEventDTO(Long id, String description, ProjectDTO project, TaskDTO task, Long duration, Date date, Long userId) {
+    public TrackerEventDTO(Long id, String description, ProjectDTO project, TaskDTO task, Long duration, LocalDateTime date, Long userId) {
         this.id = id;
         this.description = description;
         this.project = project;
@@ -64,11 +64,11 @@ public class TrackerEventDTO {
         this.duration = duration;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

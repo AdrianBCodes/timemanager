@@ -5,9 +5,10 @@ import com.adrianbcodes.timemanager.project.Project;
 import com.adrianbcodes.timemanager.task.Task;
 import com.adrianbcodes.timemanager.user.User;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "tracker_events")
@@ -24,7 +25,8 @@ public class TrackerEvent {
     private Task task;
     private Long duration;
     @JsonFormat(pattern = "dd/MM/yyyy")
-    private Date date;
+    @DateTimeFormat(pattern = "dd-MM-yyyy")
+    private LocalDateTime date;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -32,7 +34,7 @@ public class TrackerEvent {
     public TrackerEvent() {
     }
 
-    public TrackerEvent(String description, Project project, Task task, Long duration, Date date, User user) {
+    public TrackerEvent(String description, Project project, Task task, Long duration, LocalDateTime date, User user) {
         this.description = description;
         this.project = project;
         this.task = task;
@@ -41,7 +43,7 @@ public class TrackerEvent {
         this.user = user;
     }
 
-    public TrackerEvent(Long id, String description, Project project, Task task, Long duration, Date date, User user) {
+    public TrackerEvent(Long id, String description, Project project, Task task, Long duration, LocalDateTime date, User user) {
         this.id = id;
         this.description = description;
         this.project = project;
@@ -91,11 +93,11 @@ public class TrackerEvent {
         this.duration = duration;
     }
 
-    public Date getDate() {
+    public LocalDateTime getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(LocalDateTime date) {
         this.date = date;
     }
 

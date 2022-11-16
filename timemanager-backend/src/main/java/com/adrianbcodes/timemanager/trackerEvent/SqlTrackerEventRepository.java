@@ -12,14 +12,15 @@ import java.util.Optional;
 public interface SqlTrackerEventRepository extends TrackerEventRepository, JpaRepository<TrackerEvent, Long>, QuerydslPredicateExecutor {
 
     Page<TrackerEvent> findAll(Predicate predicate, Pageable pageable);
+    List<TrackerEvent> findAll(Predicate predicate);
 
     @Override
     default Page<TrackerEvent> getAllTrackerEventsPaged(Predicate predicate, Pageable pageable){
         return this.findAll(predicate, pageable);
     }
     @Override
-    default List<TrackerEvent> getAllTrackerEvents() {
-        return this.findAll();
+    default List<TrackerEvent> getAllTrackerEvents(Predicate predicate) {
+        return this.findAll(predicate);
     }
 
     @Override

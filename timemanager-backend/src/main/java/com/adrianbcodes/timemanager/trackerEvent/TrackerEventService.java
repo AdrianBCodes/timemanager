@@ -1,15 +1,18 @@
 package com.adrianbcodes.timemanager.trackerEvent;
 
-import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class TrackerEventService {
@@ -18,7 +21,7 @@ public class TrackerEventService {
     public TrackerEventService(TrackerEventRepository trackerEventRepository) {
         this.trackerEventRepository = trackerEventRepository;
     }
-    Page<TrackerEvent> getAllTrackerEventsPaged(String description, List<Long> projectsIds, List<Long> tasksIds, Long duration, Date date, List<Long> usersIds, int page, int size, String sort){
+    Page<TrackerEvent> getAllTrackerEventsPaged(String description, List<Long> projectsIds, List<Long> tasksIds, Long duration, LocalDateTime date, List<Long> usersIds, int page, int size, String sort){
         QTrackerEvent trackerEvent = QTrackerEvent.trackerEvent;
 
         BooleanBuilder builder = new BooleanBuilder();
@@ -60,6 +63,24 @@ public class TrackerEventService {
     void deleteTrackerEventById(Long id){
         TrackerEvent toDelete = getTrackerEventById(id);
         trackerEventRepository.deleteTrackerEvent(toDelete);
+    }
+
+    public List<TrackerEvent> getAllTrackerEventsForCurrentUserByDate(LocalDateTime date) {
+        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        QTrackerEvent trackerEvent = QTrackerEvent.trackerEvent;
+
+        LocalDate localDate = date.toLocalDate();
+        LocalDateTime startOfDate = localDate.atTime(LocalTime.MIN);
+        LocalDateTime endOfDate = localDate.atTime(LocalTime.MAX);
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(trackerEvent.user.username.eq(userDetails.getUsername()));
+        if(date != null){
+            builder.and(trackerEvent.date.between(startOfDate, endOfDate));
+        }
+
+        return trackerEventRepository.getAllTrackerEvents(builder);
     }
 
     private Sort.Direction getSortDirection(String direction) {

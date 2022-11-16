@@ -4,7 +4,7 @@ import com.adrianbcodes.timemanager.project.Project;
 import com.adrianbcodes.timemanager.task.Task;
 import com.adrianbcodes.timemanager.user.User;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class TrackerEventBuilder {
     private Long id;
@@ -12,7 +12,7 @@ public class TrackerEventBuilder {
     private Project project;
     private Task task;
     private Long duration;
-    private Date date;
+    private LocalDateTime date;
     private User user;
 
     public static TrackerEventBuilder builder() {
@@ -44,7 +44,7 @@ public class TrackerEventBuilder {
         return this;
     }
 
-    public TrackerEventBuilder withDate(Date date) {
+    public TrackerEventBuilder withDate(LocalDateTime date) {
         this.date = date;
         return this;
     }
