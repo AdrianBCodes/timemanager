@@ -6,6 +6,7 @@
         <i class="pi pi-angle-double-left"></i>
       </span>
       <SidebarLink to="/tracker" icon="pi pi-calendar-times">Tracker</SidebarLink>
+      <SidebarLink to="/reports" icon="pi pi-chart-bar">Reports</SidebarLink>
       <SidebarLink v-if="!isUser()" to="/clients" icon="pi pi-users">Clients</SidebarLink>
       <SidebarLink v-if="!isUser()" to="/projects" icon="pi pi-briefcase">Projects</SidebarLink>
       <SidebarLink v-if="!isUser()" to="/users" icon="pi pi-user">Users</SidebarLink>

@@ -26,10 +26,7 @@
                         :placeholder="`Search by name `" v-tooltip.top.focus="'Hit enter key to filter'" />
                 </template>
             </Column>
-            <Column header="Client" filterField="client" :showFilterMenu="false" :showClearButton="false">
-                    <template #body="{data}">
-                        <span>{{data.client.name}}</span>
-                    </template>
+            <Column field= "client.name" header="Client" filterField="client" :showFilterMenu="false" :showClearButton="false">
                     <template #filter="{filterModel}">
                         <MultiSelect v-model="filterModel.value" :filter="true" @change="onClientFilter(filterModel.value)" :options="clients" optionLabel="name" placeholder="Choose clients" class="p-column-filter">
                             <template #option="slotProps">
@@ -313,7 +310,7 @@ export default defineComponent({
             currentPage.value = 0
             filterClientsParam.value = 'clientsIds='
             input.forEach(c => {
-                filterClientsParam.value = filterClientsParam.value.concat(c.id.toString())
+                filterClientsParam.value = filterClientsParam.value.concat(c.id.toString()) + ','
             })
         }
 
@@ -324,7 +321,7 @@ export default defineComponent({
             currentPage.value = 0
             filterOwnersParam.value = 'ownersIds='
             input.forEach(o => {
-                filterOwnersParam.value = filterOwnersParam.value.concat(o.id.toString())
+                filterOwnersParam.value = filterOwnersParam.value.concat(o.id.toString()) + ','
             })
         }
 

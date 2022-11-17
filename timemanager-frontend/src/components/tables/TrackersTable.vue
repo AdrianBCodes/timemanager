@@ -20,13 +20,13 @@
             <Column field="description" header="Description"></Column>
             <Column field="duration" header="Duration" style="max-width:8rem">
                 <template #body="slotProps">
-                    <span> {{ durationMinutesToString(slotProps.data.duration)}}</span>
+                    <span> {{ durationMinutesToString(slotProps.data.duration) }}</span>
                 </template>
             </Column>
             <Column :exportable="false" style="max-width:12rem ">
                 <template #body="slotProps">
-                    <Button icon="pi pi-pencil" class="p-button-rounded p-button-success" />
-                    <Button icon="pi pi-trash" class="p-button-rounded p-button-danger" />
+                    <!-- <Button icon="pi pi-pencil" class="p-button-rounded p-button-success" /> -->
+                    <Button icon="pi pi-trash" class="p-button-rounded p-button-danger" @click="deleteTrackerEventById(slotProps.data.id)" />
                 </template>
             </Column>
         <template #empty>
@@ -91,7 +91,7 @@ export default defineComponent({
     setup() {
 
         const addDaysToDate = (date: Date, days: number) => {
-            const result = new Date()
+            const result = new Date(date)
             result.setDate(date.getDate() + days)
             return result;
         }
@@ -119,7 +119,7 @@ export default defineComponent({
         const firstDay = ref(getFirstDayOfCurrentWeek())
         const lastDay = ref(addDaysToDate(firstDay.value, 6))
         const dateTable = ref<Date[]>([]);
-        const selectedDate = ref(new Date())
+        const selectedDate = ref()
 
         const currentUserId = () => {
             return store.getters.getUserId;
@@ -131,7 +131,6 @@ export default defineComponent({
 
         onMounted(() => {
             loadDateTable()
-            loadGetTrackerEvents(selectedDate.value)
             loadGetProjectsToTrack()
         })
 
@@ -163,7 +162,7 @@ export default defineComponent({
             const trackerEventToAdd = ref<TrackerEventWriteModel>({
                 description: description.value,
                 projectId: selectedProject.value!.id,
-                taskId: selectedTask.value!.id,
+                taskId: selectedTask.value?.id,
                 duration: durationStringToMinutes(duration.value),
                 date: dateToAdd.value,
                 userId: currentUserId()
@@ -196,10 +195,6 @@ export default defineComponent({
             return hours + ':' + min;
         }
 
-        const doNothing = () => {
-            console.log('erge')
-        }
-
         const goToNextWeek = () => {
             firstDay.value = addDaysToDate(firstDay.value, 7);
         }
@@ -211,14 +206,21 @@ export default defineComponent({
         const isNotReadyToAdd = () => {
             return description.value.length === 0 ||
             selectedProject.value == null ||
-            selectedTask.value == null ||
             duration.value.length === 0
         }
+
+        const deleteTrackerEventById = (id: number) => {
+            const { resp, loadDeleteTrackerEvent } = trackerEventService.deleteTrackerEvent();
+            loadDeleteTrackerEvent(id)
+            watch(resp, () => {
+                loadGetTrackerEvents(selectedDate.value)
+            })
+        };
 
 
         return {
             trackerEvents, selectedDate, projectsToTrack, selectedProject, tasks, selectedTask, description, duration,
-             addTrackerEvent, durationMinutesToString, doNothing, dateTable, firstDay, lastDay, goToNextWeek, goToPreviousWeek, isNotReadyToAdd
+            addTrackerEvent, durationMinutesToString, dateTable, firstDay, lastDay, goToNextWeek, goToPreviousWeek, isNotReadyToAdd, deleteTrackerEventById
         }
     },
 })
@@ -259,8 +261,6 @@ div.highlight {
     background: #2a323d;
     border: 1px solid #3f4b5b;
     border-radius: 4px;
-    padding: 1rem;
-    
 }
 .table {
     margin-right: 0.7vw;

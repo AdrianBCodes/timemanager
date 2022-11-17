@@ -17,7 +17,7 @@ export default class TrackerEventService {
         const loadGetTrackerEvents =async (date: Date) => {
             await axios.get(baseURL + '/trackerEvents/current',  {
                 params:{
-                    dateString: date.toLocaleDateString('en-GB')
+                    dateString: date.toLocaleDateString('en-GB') + ' 00:00'
                 },
                 headers: {
                     "Accept": "application/json",

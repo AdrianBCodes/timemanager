@@ -4,6 +4,7 @@ import Register from '../views/Register.vue'
 import Profile from '../views/Profile.vue'
 import PageNotFound from '../views/PageNotFound.vue'
 import Tracker from '../views/Tracker.vue'
+import Reports from '../views/Reports.vue'
 import Clients from '../views/Clients.vue'
 import Projects from '../views/Projects.vue'
 import Users from '../views/Users.vue'
@@ -41,6 +42,14 @@ const routes: Array<RouteRecordRaw> = [
     path: '/tracker',
     name: 'Tracker',
     component: Tracker,
+    meta: {
+      requiresAuth: true
+    }
+  },
+  {
+    path: '/reports',
+    name: 'Reports',
+    component: Reports,
     meta: {
       requiresAuth: true
     }
