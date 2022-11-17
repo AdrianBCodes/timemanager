@@ -117,7 +117,7 @@ public class TrackerEvent {
                 this.task.convertToTaskDTO(),
                 this.duration,
                 this.date,
-                this.user.getId()
+                this.user.convertToUserDTO()
         );
     }
 }

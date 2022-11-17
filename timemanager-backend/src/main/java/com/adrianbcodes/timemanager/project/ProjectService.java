@@ -40,7 +40,7 @@ public class ProjectService {
         builder.and(project.status.eq(StatusEnum.ACTIVE));
 
         if(!name.isEmpty()){
-            builder.and(project.name.contains(name));
+            builder.and(project.name.containsIgnoreCase(name));
         }
         if(!clientsIds.isEmpty()){
             builder.and(project.client.id.in(clientsIds));

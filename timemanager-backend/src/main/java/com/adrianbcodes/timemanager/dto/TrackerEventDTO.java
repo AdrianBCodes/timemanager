@@ -12,16 +12,16 @@ public class TrackerEventDTO {
     private Long duration;
     @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDateTime date;
-    private Long userId;
+    private UserDTO user;
 
-    public TrackerEventDTO(Long id, String description, ProjectDTO project, TaskDTO task, Long duration, LocalDateTime date, Long userId) {
+    public TrackerEventDTO(Long id, String description, ProjectDTO project, TaskDTO task, Long duration, LocalDateTime date, UserDTO user) {
         this.id = id;
         this.description = description;
         this.project = project;
         this.task = task;
         this.duration = duration;
         this.date = date;
-        this.userId = userId;
+        this.user = user;
     }
 
     public Long getId() {
@@ -72,11 +72,11 @@ public class TrackerEventDTO {
         this.date = date;
     }
 
-    public Long getUserId() {
-        return userId;
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
+    public void setUser(UserDTO user) {
+        this.user = user;
     }
 }

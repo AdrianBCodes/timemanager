@@ -1,5 +1,6 @@
 package com.adrianbcodes.timemanager.trackerEvent;
 
+import com.adrianbcodes.timemanager.exceptions.UnauthorizedException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.data.domain.Page;
@@ -21,15 +22,18 @@ public class TrackerEventService {
     public TrackerEventService(TrackerEventRepository trackerEventRepository) {
         this.trackerEventRepository = trackerEventRepository;
     }
-    Page<TrackerEvent> getAllTrackerEventsPaged(String description, List<Long> projectsIds, List<Long> tasksIds, Long duration, LocalDateTime date, List<Long> usersIds, int page, int size, String sort){
+    Page<TrackerEvent> getAllTrackerEventsPaged(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, LocalDateTime date, List<Long> usersIds, int page, int size, String sort){
         QTrackerEvent trackerEvent = QTrackerEvent.trackerEvent;
 
         BooleanBuilder builder = new BooleanBuilder();
 
-        builder.and(trackerEvent.description.contains(description));
+        builder.and(trackerEvent.description.containsIgnoreCase(description));
 
         if(!projectsIds.isEmpty()){
             builder.and(trackerEvent.project.id.in(projectsIds));
+        }
+        if(!clientsIds.isEmpty()){
+            builder.and(trackerEvent.project.client.id.in(clientsIds));
         }
         if(!tasksIds.isEmpty()){
             builder.and(trackerEvent.task.id.in(tasksIds));
@@ -66,17 +70,20 @@ public class TrackerEventService {
     }
 
     public List<TrackerEvent> getAllTrackerEventsForCurrentUserByDate(LocalDateTime date) {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails;
+        try{
+            userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        } catch (Exception e){
+            throw new UnauthorizedException("Unauthorized");
+        }
+
         QTrackerEvent trackerEvent = QTrackerEvent.trackerEvent;
-
-        LocalDate localDate = date.toLocalDate();
-        LocalDateTime startOfDate = localDate.atTime(LocalTime.MIN);
-        LocalDateTime endOfDate = localDate.atTime(LocalTime.MAX);
-
         BooleanBuilder builder = new BooleanBuilder();
-
         builder.and(trackerEvent.user.username.eq(userDetails.getUsername()));
         if(date != null){
+            LocalDate localDate = date.toLocalDate();
+            LocalDateTime startOfDate = localDate.atTime(LocalTime.MIN);
+            LocalDateTime endOfDate = localDate.atTime(LocalTime.MAX);
             builder.and(trackerEvent.date.between(startOfDate, endOfDate));
         }
 

@@ -32,13 +32,13 @@ public class UserService {
         builder.and(user.status.eq(StatusEnum.ACTIVE));
 
         if(!name.isEmpty()){
-            builder.and(user.name.contains(name));
+            builder.and(user.name.containsIgnoreCase(name));
         }
         if(!surname.isEmpty()){
-            builder.and(user.surname.contains(surname));
+            builder.and(user.surname.containsIgnoreCase(surname));
         }
         if(!email.isEmpty()){
-            builder.and(user.email.contains(email));
+            builder.and(user.email.containsIgnoreCase(email));
         }
         if(projectId != null){
             builder.and(user.projects.any().id.eq(projectId));
