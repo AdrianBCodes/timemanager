@@ -1,0 +1,53 @@
+version: '3.6'
+services:
+    timemanager-postgres:
+        container_name: timemanager-postgres
+        image: postgres:14.6
+        restart: always
+        environment:
+            POSTGRES_DB: timemanager
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            PGDATA: /var/lib/postgresql/data
+        ports:
+            - "5432:5432"
+        volumes:
+            - db-data:/var/lib/postgresql/data
+        networks: 
+            - spring-vue-postgres-network
+         
+    timemanager-backend:
+        depends_on:
+            - timemanager-postgres
+        container_name: timemanager-backend
+        build:
+            context: ./timemanager-backend
+            dockerfile: Dockerfile
+        image: timemanager/timemanager-backend
+        environment:
+            - SPRING.DATASOURCE.URL=jdbc:postgresql://timemanager-postgres:5432/timemanager
+        ports:
+            - 8080:8080
+        networks:
+            - spring-vue-postgres-network
+            
+    timemanager-frontend:
+        container_name: timemanager-frontend
+        build:
+            context: ./timemanager-frontend
+            dockerfile: Dockerfile
+        image: timemanager/timemanager-frontend
+        ports:
+            - 3000:3000
+        depends_on:
+            - timemanager-backend
+        networks: 
+            - spring-vue-postgres-network 
+            
+networks:
+    spring-vue-postgres-network:
+        driver: bridge
+        
+volumes:
+    db-data:
+        

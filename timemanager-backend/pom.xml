@@ -14,7 +14,7 @@
 	<name>timemanager</name>
 	<description>timemanager</description>
 	<properties>
-		<java.version>17</java.version>
+		<java.version>18</java.version>
 		<querydsl.version>LATEST</querydsl.version>
 	</properties>
 	<dependencies>
@@ -58,11 +58,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
 			<exclusions>
 				<exclusion>
 					<groupId>junit</groupId>
@@ -92,9 +87,16 @@
 			<groupId>com.querydsl</groupId>
 			<artifactId>querydsl-jpa</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.3</version>
+		</dependency>
 	</dependencies>
 
 	<build>
+		<finalName>timemanager-backend</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
