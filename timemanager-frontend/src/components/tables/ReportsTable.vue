@@ -7,6 +7,7 @@
                 <div class="table-header">
                     <div class="table-header-group-left" >
                         Reports
+                        <Button label="Export" class="p-button p-button-success" style="margin-left: 1rem" @click="exportToExcel"></Button>
                     </div>
                     <div class="table-header-group-right" >
                         <span>
@@ -26,7 +27,7 @@
                         </MultiSelect>
                     </template>
             </Column>
-            <Column header="User" :sortable="true" filterField="user.name" :showFilterMenu="false"
+            <Column header="User" filterField="user.name" :showFilterMenu="false"
                 :show-clear-button="false">
                 <template #body="{data}">
                         <span>{{data.user.name + ' ' + data.user.surname}}</span>
@@ -71,23 +72,25 @@
                         :placeholder="`Search by description `" v-tooltip.top.focus="'Hit enter key to filter'" />
                 </template>
             </Column>
+            <Column field="date" header="Date" :sortable="true" filterField="date" :showFilterMenu="false"
+                :show-clear-button="false">
+                <template #filter="{}">
+                    <div style="display: flex">
+                    <Calendar style="max-width: 80%" v-model="selectedDate" dateFormat="dd/mm/yy" placeholder="dd/mm/yyyy"  />
+                    <i class="pi pi-filter-slash" style="font-size: 1.3rem; margin: auto;" v-if="selectedDate" @click="clearSelectedDate" />
+                    <!-- <Button style="max-width: 20%" v-if="selectedDate" @click="clearSelectedDate"></Button> -->
+                    </div>
+                </template>
+            </Column>
+
             <Column field="duration" header="Duration" :sortable="true" filterField="duration" :showFilterMenu="false"
                 :show-clear-button="false">
                 <template #body="slotProps">
                     <span> {{ durationMinutesToString(slotProps.data.duration) }}</span>
                 </template>
+<!--                 TODO - filter for duration (better time picker and multiple filter options) -->
                 <template #filter="{filterModel}">
-                    <InputText type="text" v-model="filterModel.value"
-                        @keydown.enter="onFilter('description', filterModel.value)" class="p-column-filter"
-                        :placeholder="`Search by duration `" v-tooltip.top.focus="'Hit enter key to filter'" />
-                </template>
-            </Column>
-            <Column field="date" header="Date" :sortable="true" filterField="date" :showFilterMenu="false"
-                :show-clear-button="false">
-                <template #filter="{filterModel}">
-                    <InputText type="text" v-model="filterModel.value"
-                        @keydown.enter="onFilter('description', filterModel.value)" class="p-column-filter"
-                        :placeholder="`Search by date `" v-tooltip.top.focus="'Hit enter key to filter'" />
+                    <Calendar v-model="filterModel.value" :showTime="true" :timeOnly="true" :stepMinute="30"/>
                 </template>
             </Column>
             <template #footer>
@@ -121,14 +124,16 @@ export default defineComponent({
         const pageParam = ref('page=' + currentPage.value)
         const sizeParam = ref('size=' + size.value)
         const sortParam = ref('')
+        const selectedDate = ref<Date>()
         const trackerEventService = new TrackerEventService()
-        const {trackerEventsPaged, loadGetTrackerEventsPaged} = trackerEventService.getTrackerEventsPaged()
+        const {trackerEventsPaged, totalRecords, loadGetTrackerEventsPaged} = trackerEventService.getTrackerEventsPaged()
         const filterDescriptionParam = ref('')
         const filterClientsParam = ref('')
         const filterUsersParam = ref('')
-        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterDescriptionParam.value + '&' + filterClientsParam.value)
-        const projectService = ref(new ProjectService());
-        const { projects, totalRecords, errorGetProjects, loadGetProjects } = projectService.value.getProjects()
+        const filterDateParam = ref('')
+        const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterDescriptionParam.value + '&' + filterClientsParam.value + '&' + filterDateParam.value)
+        const projectService = new ProjectService();
+        const { projects, errorGetProjects, loadGetProjects } = projectService.getProjects()
         const isEditing = ref(false);
         const deleteProjectDialog = ref(false)
         const submitted = ref(false)
@@ -153,6 +158,7 @@ export default defineComponent({
             loadGetTasks()
         })
 
+
         const filters1 = ref({
             'project.client': { value: null, matchMode: FilterMatchMode.IN },
             'task': { value: null, matchMode: FilterMatchMode.IN },
@@ -160,7 +166,7 @@ export default defineComponent({
             'project.name': { value: null, matchMode: FilterMatchMode.CONTAINS },
             'description': { value: null, matchMode: FilterMatchMode.CONTAINS },
             'duration': { value: null, matchMode: FilterMatchMode.CONTAINS },
-            'date': { value: null, matchMode: FilterMatchMode.CONTAINS },
+            'date': { value: null, matchMode: FilterMatchMode.EQUALS },
         });
 
         watch(size, (s) => {
@@ -169,9 +175,15 @@ export default defineComponent({
         watch(currentPage, (cp) => {
             pageParam.value = 'page=' + cp
         })
-        watch([sizeParam, pageParam, sortParam, filterDescriptionParam, filterClientsParam, filterUsersParam], (p) => {
+        watch([sizeParam, pageParam, sortParam, filterDescriptionParam, filterClientsParam, filterUsersParam, filterDateParam], (p) => {
             params.value = p.join('&')
             loadGetTrackerEventsPaged(params.value);
+        })
+
+        watch(selectedDate, () => {
+            if(selectedDate.value != undefined){
+                filterDateParam.value = 'date=' + selectedDate.value?.toLocaleDateString('en-GB') + ' 00:00'
+            }
         })
 
         const onPage = (event: any) => {
@@ -234,6 +246,11 @@ export default defineComponent({
             return hours + ':' + min;
         }
 
+        const clearSelectedDate = () => {
+            selectedDate.value = undefined
+            filterDateParam.value = ''
+        }
+
         const clearFilters = () => {
             currentPage.value = 0
             offset.value = 0
@@ -244,11 +261,16 @@ export default defineComponent({
             datatableKey.value++
         }
 
+        const exportToExcel = () => {
+            const {loadGetTrackerEventsExport} = trackerEventService.getTrackerEventsExport();
+            loadGetTrackerEventsExport(params.value)
+        }
+
         return {
             trackerEventsPaged, projects, errorGetProjects, currentPage, size, totalRecords, submitted, project, isEditing, 
             renderComponent, deleteProjectDialog,
-            onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey,
-            clients, users, selectedClient, selectedOwner, onClientFilter, onOwnerFilter, tasks, durationMinutesToString
+            onPage, onSort, offset, filters1, onFilter, clearFilters, datatableKey, exportToExcel,
+            clients, users, selectedClient, selectedOwner, onClientFilter, onOwnerFilter, tasks, durationMinutesToString, selectedDate, clearSelectedDate
         }
 
     },

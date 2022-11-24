@@ -102,8 +102,8 @@ export default defineComponent({
         const filterNameParam = ref('')
         const filterNoteParam = ref('')
         const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterNoteParam.value)
-        const clientService = ref(new ClientService());
-        const { clients, totalRecords, errorGetClients, loadGetClients } = clientService.value.getClients()
+        const clientService = new ClientService();
+        const { clients, totalRecords, errorGetClients, loadGetClients } = clientService.getClients()
         const isEditing = ref(false);
         const deleteClientDialog = ref(false)
         const submitted = ref(false)
@@ -144,7 +144,7 @@ export default defineComponent({
         };
 
         const saveClient = () => {
-            const { addedClient, loadAddClient } = clientService.value.addClient();
+            const { addedClient, loadAddClient } = clientService.addClient();
             loadAddClient(client.value);
             watch(addedClient, () => {
                 loadGetClients(params.value)
@@ -159,7 +159,7 @@ export default defineComponent({
         };
 
         const editClient = () => {
-            const { editedClient, loadEditClient } = clientService.value.editClient();
+            const { editedClient, loadEditClient } = clientService.editClient();
             loadEditClient(client.value.id, client.value);
             watch(editedClient, () => {
                 loadGetClients(params.value)
@@ -175,7 +175,7 @@ export default defineComponent({
         };
 
         const deleteClientById = () => {
-            const { resp, loadDeleteClient } = clientService.value.deleteClient();
+            const { resp, loadDeleteClient } = clientService.deleteClient();
             loadDeleteClient(client.value.id)
             watch(resp, () => {
                 loadGetClients(params.value);

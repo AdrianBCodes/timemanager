@@ -40,7 +40,7 @@ export default class TrackerEventService {
         const trackerEventsPaged = ref<TrackerEvent[]>([])
         const errorGetTrackerEventsPaged = ref()
         const loadGetTrackerEventsPaged = async (params = '') => {
-            await axios.get(baseURL + '/trackerEvents?' + params, {
+            await axios.get(baseURL + '/trackerEvents/paged?' + params, {
                 headers: {
                     "Accept": "application/json",
                     "Content-Type": "application/json",
@@ -140,5 +140,32 @@ export default class TrackerEventService {
             })
         }
         return {resp, errorDeleteTrackerEvent, loadDeleteTrackerEvent }
+    }
+
+    getTrackerEventsExport = () => {
+        const resp = ref(null)
+        const errorGetTrackerEventsExport = ref()
+        const loadGetTrackerEventsExport =async (params = '') => {
+
+            axios({
+                url: baseURL + '/trackerEvents/reports/export?' + params,
+                method: 'GET',
+                responseType: 'blob',
+            }).then((response) => {
+                 const fileURL = window.URL.createObjectURL(new Blob([response.data]));
+                 const fileLink = document.createElement('a');
+    
+                 fileLink.href = fileURL;
+                 fileLink.setAttribute('download', 'reports.xlsx');
+                 document.body.appendChild(fileLink);
+    
+                 fileLink.click();
+            }).catch(e => {
+                errorGetTrackerEventsExport.value = e.message;
+                this.toast.add({severity:'error', summary: 'Error', detail:e.message, life: 3000});
+            });
+
+        }
+        return {resp, errorGetTrackerEventsExport, loadGetTrackerEventsExport}
     }
 }

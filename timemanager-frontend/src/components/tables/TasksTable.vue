@@ -144,8 +144,8 @@ export default defineComponent({
         const filterTagsParam = ref('')
         const filterDescriptionParam = ref('')
         const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + projectIdParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterDescriptionParam.value  + '&' + filterTagsParam.value)
-        const taskService = ref(new TaskService());
-        const { tasks , totalRecords, errorGetTasks, loadGetTasks } = taskService.value.getTasks()
+        const taskService = new TaskService();
+        const { tasks , totalRecords, errorGetTasks, loadGetTasks } = taskService.getTasks()
         const isEditing = ref(false);
         const deleteTaskDialog = ref(false)
         const submitted = ref(false)
@@ -207,7 +207,7 @@ export default defineComponent({
         };
 
         const saveTask = () => {
-            const { addedTask, loadAddTask } = taskService.value.addTask();
+            const { addedTask, loadAddTask } = taskService.addTask();
             loadAddTask(task.value);
             watch(addedTask, () => {
                 loadGetTasks(params.value)
@@ -228,7 +228,7 @@ export default defineComponent({
         };
 
         const editTask = () => {
-            const { editedTask, loadEditTask } = taskService.value.editTask();
+            const { editedTask, loadEditTask } = taskService.editTask();
             loadEditTask(task.value.id, task.value);
             watch(editedTask, () => {
                 loadGetTasks(params.value)
@@ -250,7 +250,7 @@ export default defineComponent({
         };
 
         const deleteTaskById = () => {
-            const { resp, loadDeleteTask } = taskService.value.deleteTask();
+            const { resp, loadDeleteTask } = taskService.deleteTask();
             loadDeleteTask(task.value.id)
             watch(resp, () => {
                 loadGetTasks(params.value);

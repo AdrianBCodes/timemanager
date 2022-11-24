@@ -117,8 +117,8 @@ export default defineComponent({
         const filterSurnameParam = ref('')
         const filterEmailParam = ref('')
         const params = ref<string>(pageParam.value + '&' + sizeParam.value + '&' + sortParam.value + '&' + filterNameParam.value + '&' + filterSurnameParam.value + '&' + filterEmailParam.value)
-        const userService = ref(new UserService());
-        const { users, totalRecords, errorGetUsers, loadGetUsers } = userService.value.getUsers()
+        const userService = new UserService();
+        const { users, totalRecords, errorGetUsers, loadGetUsers } = userService.getUsers()
         const isEditing = ref(false);
         const deleteUserDialog = ref(false)
         const submitted = ref(false)
@@ -156,7 +156,7 @@ export default defineComponent({
         };
 
         const saveUser = () => {
-            const { addedUser, loadAddUser } = userService.value.addUser();
+            const { addedUser, loadAddUser } = userService.addUser();
             loadAddUser(user.value);
             watch(addedUser, () => {
                 loadGetUsers(params.value)
@@ -171,7 +171,7 @@ export default defineComponent({
         };
 
         const editUser = () => {
-            const { editedUser, loadEditUser } = userService.value.editUser();
+            const { editedUser, loadEditUser } = userService.editUser();
             loadEditUser(user.value.id, user.value);
             watch(editedUser, () => {
                 loadGetUsers(params.value)
@@ -187,7 +187,7 @@ export default defineComponent({
         };
 
         const deleteUserById = () => {
-            const { resp, loadDeleteUser } = userService.value.deleteUser();
+            const { resp, loadDeleteUser } = userService.deleteUser();
             loadDeleteUser(user.value.id)
             watch(resp, () => {
                 loadGetUsers(params.value);

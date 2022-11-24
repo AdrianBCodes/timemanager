@@ -9,5 +9,8 @@ axios.interceptors.response.use(function (response) {
   if (error.response.status === 403) {
     router.push({name: 'Denied'})
   }
+  if (error.response.status === 401) {
+    router.push({name: 'Login'})
+  }
   return Promise.reject(error)
 })
