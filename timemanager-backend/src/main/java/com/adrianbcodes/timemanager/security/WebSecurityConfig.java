@@ -73,6 +73,7 @@ public class WebSecurityConfig {
                 "/api/v1/projects",
                 "/api/v1/users",
                 "/api/v1/tags",
+                "/api/v1/trackerEvents/paged",
                 "/api/v1/clients**",
                 "/api/v1/projects**",
                 "/api/v1/users**",

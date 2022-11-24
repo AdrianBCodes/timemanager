@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,9 +23,8 @@ public class TrackerEventService {
     public TrackerEventService(TrackerEventRepository trackerEventRepository) {
         this.trackerEventRepository = trackerEventRepository;
     }
-    Page<TrackerEvent> getAllTrackerEventsPaged(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, LocalDateTime date, List<Long> usersIds, int page, int size, String sort){
+    Page<TrackerEvent> getAllTrackerEventsPaged(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, String date, List<Long> usersIds, int page, int size, String sort){
         QTrackerEvent trackerEvent = QTrackerEvent.trackerEvent;
-
         BooleanBuilder builder = new BooleanBuilder();
 
         builder.and(trackerEvent.description.containsIgnoreCase(description));
@@ -42,14 +42,14 @@ public class TrackerEventService {
             builder.and(trackerEvent.duration.eq(duration));
         }
         if(date != null){
-            builder.and(trackerEvent.date.eq(date));
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime localDateTime = LocalDateTime.parse(date, formatter);
+            builder.and(trackerEvent.date.eq(localDateTime));
         }
         if(!usersIds.isEmpty()){
             builder.and(trackerEvent.user.id.in(usersIds));
         }
-
         List<Sort.Order> orders = new ArrayList<>();
-
         String[] _sort = sort.split(",");
         orders.add(new Sort.Order(getSortDirection(_sort[1]), _sort[0]));
 
@@ -57,6 +57,41 @@ public class TrackerEventService {
 
         return trackerEventRepository.getAllTrackerEventsPaged(builder, pageable);
     }
+
+    List<TrackerEvent> getAllTrackerEvents(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, String date, List<Long> usersIds, String sort){
+        QTrackerEvent trackerEvent = QTrackerEvent.trackerEvent;
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(trackerEvent.description.containsIgnoreCase(description));
+
+        if(!projectsIds.isEmpty()){
+            builder.and(trackerEvent.project.id.in(projectsIds));
+        }
+        if(!clientsIds.isEmpty()){
+            builder.and(trackerEvent.project.client.id.in(clientsIds));
+        }
+        if(!tasksIds.isEmpty()){
+            builder.and(trackerEvent.task.id.in(tasksIds));
+        }
+        if(duration != null){
+            builder.and(trackerEvent.duration.eq(duration));
+        }
+        if(date != null){
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
+            LocalDateTime localDateTime = LocalDateTime.parse(date, formatter);
+            builder.and(trackerEvent.date.eq(localDateTime));
+        }
+        if(!usersIds.isEmpty()){
+            builder.and(trackerEvent.user.id.in(usersIds));
+        }
+
+        List<Sort.Order> orders = new ArrayList<>();
+        String[] _sort = sort.split(",");
+        orders.add(new Sort.Order(getSortDirection(_sort[1]), _sort[0]));
+
+        return trackerEventRepository.getAllTrackerEvents(builder, Sort.by(orders));
+    }
+
     TrackerEvent getTrackerEventById(Long id){
         return trackerEventRepository.getTrackerEventById(id).orElseThrow(() -> new NotFoundException("TrackerEvent with id: " + id + " not found"));
     }
@@ -83,8 +118,8 @@ public class TrackerEventService {
         if(date != null){
             LocalDate localDate = date.toLocalDate();
             LocalDateTime startOfDate = localDate.atTime(LocalTime.MIN);
-            LocalDateTime endOfDate = localDate.atTime(LocalTime.MAX);
-            builder.and(trackerEvent.date.between(startOfDate, endOfDate));
+//            LocalDateTime endOfDate = localDate.atTime(LocalTime.MAX);
+            builder.and(trackerEvent.date.eq(startOfDate));
         }
 
         return trackerEventRepository.getAllTrackerEvents(builder);

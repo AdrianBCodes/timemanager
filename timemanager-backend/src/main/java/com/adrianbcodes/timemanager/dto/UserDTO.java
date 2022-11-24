@@ -54,6 +54,10 @@ public class UserDTO {
         this.surname = surname;
     }
 
+    public String getFullName(){
+        return name + " " + surname;
+    }
+
     public String getEmail() {
         return email;
     }

@@ -1,7 +1,9 @@
 package com.adrianbcodes.timemanager.trackerEvent;
 
+import com.adrianbcodes.timemanager.common.TrackerEventExcelExporter;
 import com.adrianbcodes.timemanager.dto.ProjectDTO;
 import com.adrianbcodes.timemanager.dto.TrackerEventDTO;
+import com.adrianbcodes.timemanager.exceptions.UnauthorizedException;
 import com.adrianbcodes.timemanager.project.Project;
 import com.adrianbcodes.timemanager.project.ProjectService;
 import com.adrianbcodes.timemanager.task.TaskService;
@@ -13,7 +15,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -33,7 +36,7 @@ public class TrackerEventController {
         this.userService = userService;
     }
 
-    @GetMapping()
+    @GetMapping("/paged")
     ResponseEntity<Page<TrackerEventDTO>> getAllTrackerEventsPaged(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
@@ -42,7 +45,7 @@ public class TrackerEventController {
             @RequestParam(defaultValue = "") List<Long> clientsIds,
             @RequestParam(defaultValue = "") List<Long> tasksIds,
             @RequestParam(required = false) Long duration,
-            @RequestParam(required = false) LocalDateTime date,
+            @RequestParam(required = false) String date,
             @RequestParam(defaultValue = "") List<Long> usersIds,
             @RequestParam(defaultValue = "id,asc") String sort
     ) {
@@ -104,10 +107,35 @@ public class TrackerEventController {
 
     @GetMapping("/projects")
     ResponseEntity<List<ProjectDTO>> getProjectsToTrack(){
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails userDetails;
+        try{
+            userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        } catch (Exception e){
+            throw new UnauthorizedException("Unauthorized");
+        }
+
         if(userDetails.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ROLE_USER"))){
             return ResponseEntity.ok(projectService.getProjectsByUserUsername(userDetails.getUsername()).stream().map(Project::convertToProjectDTO).toList());
         }
         return ResponseEntity.ok(projectService.getAllProjects().stream().map(Project::convertToProjectDTO).toList());
+    }
+    @GetMapping("/reports/export")
+    public void exportToExcel(
+            @RequestParam(defaultValue = "") String description,
+            @RequestParam(defaultValue = "") List<Long> projectsIds,
+            @RequestParam(defaultValue = "") List<Long> clientsIds,
+            @RequestParam(defaultValue = "") List<Long> tasksIds,
+            @RequestParam(required = false) Long duration,
+            @RequestParam(required = false) String date,
+            @RequestParam(defaultValue = "") List<Long> usersIds,
+            @RequestParam(defaultValue = "id,asc") String sort,
+            final HttpServletResponse response){
+        response.setHeader("Content-encoding", "UTF-8");
+        response.setHeader("Content-disposition", "attachment; filename=fileee.xlsx");
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        List<TrackerEventDTO> foundTrackerEvents = trackerEventService.getAllTrackerEvents(description, projectsIds,clientsIds , tasksIds, duration, date, usersIds, sort).stream().map(TrackerEvent::convertToTrackerEventDTO).toList();
+        TrackerEventExcelExporter excelExporter = new TrackerEventExcelExporter(foundTrackerEvents);
+        excelExporter.export(response);
     }
 }

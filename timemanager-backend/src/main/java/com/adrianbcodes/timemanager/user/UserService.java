@@ -3,7 +3,6 @@ package com.adrianbcodes.timemanager.user;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
-import com.adrianbcodes.timemanager.project.QProject;
 import com.querydsl.core.BooleanBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,7 +19,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    List<User> getAllUsers(){
+    public List<User> getAllUsers(){
         return userRepository.getAllUsers().stream().filter(user -> user.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
