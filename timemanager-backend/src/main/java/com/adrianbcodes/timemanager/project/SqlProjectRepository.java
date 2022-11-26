@@ -5,11 +5,8 @@ import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
-import org.springframework.lang.Nullable;
 
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +15,7 @@ public interface SqlProjectRepository extends ProjectRepository, JpaRepository<P
 
     Page<Project> findAll(Predicate predicate, Pageable pageable);
     List<Project> findAll(Predicate predicate);
+    List<Project> findAllByNameAndStatus(String name, StatusEnum status);
 
     @Override
     default Page<Project> getAllProjectsPaged(Predicate predicate, Pageable pageable){
@@ -33,6 +31,11 @@ public interface SqlProjectRepository extends ProjectRepository, JpaRepository<P
     @Override
     default Optional<Project> getProjectById(Long id) {
         return this.findById(id);
+    }
+
+    @Override
+    default List<Project> getAllProjectsByNameAndStatus(String name, StatusEnum status){
+        return this.findAllByNameAndStatus(name, status);
     }
 
     @Override

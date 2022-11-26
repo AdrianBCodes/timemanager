@@ -1,8 +1,12 @@
 package com.adrianbcodes.timemanager.project;
 
+import com.adrianbcodes.timemanager.client.Client;
+import com.adrianbcodes.timemanager.common.SortMapper;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
+import com.adrianbcodes.timemanager.exceptions.BlankParameterException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
+import com.adrianbcodes.timemanager.exceptions.NotUniqueException;
 import com.adrianbcodes.timemanager.user.User;
 import com.adrianbcodes.timemanager.user.UserRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -52,7 +56,7 @@ public class ProjectService {
         List<Sort.Order> orders = new ArrayList<>();
 
         String[] _sort = sort.split(",");
-        orders.add(new Sort.Order(getSortDirection(_sort[1]), _sort[0]));
+        orders.add(new Sort.Order(SortMapper.getSortDirection(_sort[1]), _sort[0]));
 
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
 
@@ -63,6 +67,12 @@ public class ProjectService {
         return projectRepository.getProjectById(id).orElseThrow(() -> new NotFoundException("Project with id: " + id + " not found"));
     }
     public Project saveProject(Project project){
+        if(project.getName().isBlank()){
+            throw new BlankParameterException("Project's name cannot be empty");
+        }
+        if(!isProjectNameUnique(project.getName(), StatusEnum.ACTIVE)){
+            throw new NotUniqueException("Project with name: " + project.getName() + " already exists");
+        }
         return projectRepository.saveProject(project);
     }
     void deleteProjectById(Long id){
@@ -101,17 +111,11 @@ public class ProjectService {
         builder.and(project.status.eq(StatusEnum.ACTIVE)).and(project.participants.any().username.eq(username));
 
         return projectRepository.getAllProjects(builder);
-
     }
 
-    private Sort.Direction getSortDirection(String direction) {
-        if (direction.equals("asc")) {
-            return Sort.Direction.ASC;
-        } else if (direction.equals("desc")) {
-            return Sort.Direction.DESC;
-        }
-        return Sort.Direction.ASC;
+    private boolean isProjectNameUnique(String name, StatusEnum status){
+        List<Project> projects = projectRepository.getAllProjectsByNameAndStatus(name, status);
+        return projects.isEmpty();
     }
-
 
 }

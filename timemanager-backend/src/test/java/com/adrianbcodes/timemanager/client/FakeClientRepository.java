@@ -1,5 +1,6 @@
 package com.adrianbcodes.timemanager.client;
 
+import com.adrianbcodes.timemanager.common.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -22,8 +23,8 @@ public class FakeClientRepository implements ClientRepository{
     }
 
     @Override
-    public List<Client> getAllClientsDsl() {
-        return null;
+    public List<Client> getAllClientsByNameAndStatus(String name, StatusEnum status) {
+        return clients.values().stream().filter(client -> client.getName().equals(name) && client.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
     @Override

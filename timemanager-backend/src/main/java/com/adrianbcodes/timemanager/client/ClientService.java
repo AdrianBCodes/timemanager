@@ -1,12 +1,12 @@
 package com.adrianbcodes.timemanager.client;
 
+import com.adrianbcodes.timemanager.common.SortMapper;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
+import com.adrianbcodes.timemanager.exceptions.BlankParameterException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import com.adrianbcodes.timemanager.exceptions.NotUniqueException;
+import org.springframework.data.domain.*;
 
 
 import java.util.ArrayList;
@@ -23,13 +23,30 @@ public class ClientService {
         return clientRepository.getAllClients().stream().filter(client -> client.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
-    Page<Client> getAllClientsPaged(String name, String note, Pageable pageable) {
+    Page<Client> getAllClientsPaged(String name, String note, int page, int size, String[] sort) {
+        List<Sort.Order> orders = new ArrayList<>();
+
+        if (sort[0].contains(",")) {
+            for (String sortOrder : sort) {
+                String[] _sort = sortOrder.split(",");
+                orders.add(new Sort.Order(SortMapper.getSortDirection(_sort[1]), _sort[0]));
+            }
+        } else {
+            orders.add(new Sort.Order(SortMapper.getSortDirection(sort[1]), sort[0]));
+        }
+        Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
         return clientRepository.getAllClientsByNameLikeAndNoteLike(name, note, pageable);
     }
     public Client getClientById(Long id){
         return clientRepository.getClientById(id).orElseThrow(() -> new NotFoundException("Client with id: " + id + " not found"));
     }
     public Client saveClient(Client client){
+        if(client.getName().isBlank()){
+            throw new BlankParameterException("Client's name cannot be empty");
+        }
+        if(!isClientNameUnique(client.getName(), StatusEnum.ACTIVE)){
+            throw new NotUniqueException("Client with name: " + client.getName() + " already exists");
+        }
         return clientRepository.saveClient(client);
     }
 
@@ -41,17 +58,8 @@ public class ClientService {
         clientRepository.deleteClient(toDelete);
     }
 
-    private List<Sort.Order> createSortOrder(List<String> sortList, String sortDirection) {
-        List<Sort.Order> sorts = new ArrayList<>();
-        Sort.Direction direction;
-        for (String sort : sortList) {
-            if (sortDirection != null) {
-                direction = Sort.Direction.fromString(sortDirection);
-            } else {
-                direction = Sort.Direction.DESC;
-            }
-            sorts.add(new Sort.Order(direction, sort));
-        }
-        return sorts;
+    private boolean isClientNameUnique(String name, StatusEnum status){
+        List<Client> clients = clientRepository.getAllClientsByNameAndStatus(name, status);
+        return clients.isEmpty();
     }
 }

@@ -16,6 +16,7 @@ public interface SqlClientRepository extends ClientRepository, JpaRepository<Cli
             select c from Client c
             where upper(c.name) like upper(concat('%', ?1, '%')) and upper(c.note) like upper(concat('%', ?2, '%')) and c.status = ?3""")
     Page<Client> findByNameContainsIgnoreCaseAndNoteContainsIgnoreCaseAndStatus(String name, String note, StatusEnum status, Pageable pageable);
+    List<Client> findByNameAndStatus(String name, StatusEnum status);
 
 
     @Override
@@ -27,9 +28,10 @@ public interface SqlClientRepository extends ClientRepository, JpaRepository<Cli
     default List<Client> getAllClients() {
         return this.findAll();
     }
+
     @Override
-    default List<Client> getAllClientsDsl(){
-        return this.findAll();
+    default List<Client> getAllClientsByNameAndStatus(String name, StatusEnum status){
+        return this.findByNameAndStatus(name, status);
     }
 
     @Override

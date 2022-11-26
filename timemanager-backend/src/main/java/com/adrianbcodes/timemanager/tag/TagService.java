@@ -1,15 +1,15 @@
 package com.adrianbcodes.timemanager.tag;
 
-import com.adrianbcodes.timemanager.tag.Tag;
+import com.adrianbcodes.timemanager.client.Client;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
+import com.adrianbcodes.timemanager.exceptions.BlankParameterException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
-import com.adrianbcodes.timemanager.task.TaskService;
+import com.adrianbcodes.timemanager.exceptions.NotUniqueException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
-import java.util.Set;
 
 public class TagService {
     private final TagRepository tagRepository;
@@ -30,6 +30,12 @@ public class TagService {
         return tagRepository.getTagById(id).orElseThrow(() -> new NotFoundException("Tag with id: " + id + " not found"));
     }
     public Tag saveTag(Tag tag){
+        if(tag.getName().isBlank()){
+            throw new BlankParameterException("Tag's name cannot be empty");
+        }
+        if(!isTagNameUnique(tag.getName(), StatusEnum.ACTIVE)){
+            throw new NotUniqueException("Tag with name: " + tag.getName() + " already exists");
+        }
         return tagRepository.saveTag(tag);
     }
 
@@ -39,5 +45,10 @@ public class TagService {
             throw new AlreadyDeletedException("Tag with id: " + id + " already has status DELETED");
         }
         tagRepository.deleteTag(toDelete);
+    }
+
+    private boolean isTagNameUnique(String name, StatusEnum status){
+        List<Tag> tags = tagRepository.getAllTagsByNameAndStatus(name, status);
+        return tags.isEmpty();
     }
 }

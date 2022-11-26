@@ -10,9 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SqlTagRepository extends TagRepository, JpaRepository<Tag, Long> {
-
-
-
+    List<Tag> findByNameAndStatus(String name, StatusEnum status);
 
     Page<Tag> findByNameContainsIgnoreCaseAndStatus(String name, StatusEnum status, Pageable pageable);
     @Override
@@ -27,6 +25,11 @@ public interface SqlTagRepository extends TagRepository, JpaRepository<Tag, Long
     @Override
     default Optional<Tag> getTagById(Long id) {
         return this.findById(id);
+    }
+
+    @Override
+    default List<Tag> getAllTagsByNameAndStatus(String name, StatusEnum status){
+        return this.findByNameAndStatus(name, status);
     }
 
     @Override

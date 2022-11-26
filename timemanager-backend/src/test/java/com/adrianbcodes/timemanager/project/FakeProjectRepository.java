@@ -1,5 +1,6 @@
 package com.adrianbcodes.timemanager.project;
 
+import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,6 +33,11 @@ public class FakeProjectRepository implements ProjectRepository{
     @Override
     public Optional<Project> getProjectById(Long id) {
         return Optional.ofNullable(projects.get(id));
+    }
+
+    @Override
+    public List<Project> getAllProjectsByNameAndStatus(String name, StatusEnum status) {
+        return projects.values().stream().filter(project -> project.getName().equals(name) && project.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
     @Override
