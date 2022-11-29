@@ -1,6 +1,5 @@
 package com.adrianbcodes.timemanager.project;
 
-import com.adrianbcodes.timemanager.client.Client;
 import com.adrianbcodes.timemanager.common.SortMapper;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
@@ -20,48 +19,22 @@ import java.util.Set;
 
 public class ProjectService {
     private final ProjectRepository projectRepository;
-    private final UserRepository userRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-
-
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository) {
+    public ProjectService(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
-        this.userRepository = userRepository;
     }
 
     public List<Project> getAllProjects(){
         return projectRepository.getAllProjects().stream().filter(project -> project.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
-    Page<Project> getAllProjectsPaged(String name, List<Long> clientsIds, List<Long> ownersIds, int page, int size, String sort){
-        QProject project = QProject.project;
-
-        BooleanBuilder builder = new BooleanBuilder();
-
-        builder.and(project.status.eq(StatusEnum.ACTIVE));
-
-        if(!name.isEmpty()){
-            builder.and(project.name.containsIgnoreCase(name));
-        }
-        if(!clientsIds.isEmpty()){
-            builder.and(project.client.id.in(clientsIds));
-        }
-        if(!ownersIds.isEmpty()){
-            builder.and(project.owner.id.in(ownersIds));
-        }
-
+    Page<Project> getAllProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, int page, int size, String sort){
         List<Sort.Order> orders = new ArrayList<>();
 
         String[] _sort = sort.split(",");
         orders.add(new Sort.Order(SortMapper.getSortDirection(_sort[1]), _sort[0]));
 
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
-
-
-        return projectRepository.getAllProjectsPaged(builder, pageable);
+        return projectRepository.getAllProjectsPagedAndFiltered(name, clientsIds, ownersIds, pageable);
     }
     public Project getProjectById(Long id){
         return projectRepository.getProjectById(id).orElseThrow(() -> new NotFoundException("Project with id: " + id + " not found"));
@@ -104,13 +77,7 @@ public class ProjectService {
     }
 
     public List<Project> getProjectsByUserUsername(String username){
-        QProject project = QProject.project;
-
-        BooleanBuilder builder = new BooleanBuilder();
-
-        builder.and(project.status.eq(StatusEnum.ACTIVE)).and(project.participants.any().username.eq(username));
-
-        return projectRepository.getAllProjects(builder);
+        return projectRepository.getAllProjectsOfParticipantWithUsername(username);
     }
 
     private boolean isProjectNameUnique(String name, StatusEnum status){

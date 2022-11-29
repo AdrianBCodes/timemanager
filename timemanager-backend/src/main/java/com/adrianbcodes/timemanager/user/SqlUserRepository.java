@@ -1,5 +1,7 @@
 package com.adrianbcodes.timemanager.user;
 
+import com.adrianbcodes.timemanager.common.StatusEnum;
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,8 +18,26 @@ public interface SqlUserRepository extends UserRepository, JpaRepository<User, L
     List<User> findAll(Predicate predicate);
 
     @Override
-    default Page<User> getAllUsersPaged(Predicate predicate, Pageable pageable){
-        return this.findAll(predicate, pageable);
+    default Page<User> getAllUsersPagedAndFiltered(String name, String surname, String email, Long projectId, Pageable pageable){
+        QUser user = QUser.user;
+
+        BooleanBuilder builder = new BooleanBuilder();
+
+        builder.and(user.status.eq(StatusEnum.ACTIVE));
+
+        if(!name.isEmpty()){
+            builder.and(user.name.containsIgnoreCase(name));
+        }
+        if(!surname.isEmpty()){
+            builder.and(user.surname.containsIgnoreCase(surname));
+        }
+        if(!email.isEmpty()){
+            builder.and(user.email.containsIgnoreCase(email));
+        }
+        if(projectId != null){
+            builder.and(user.projects.any().id.eq(projectId));
+        }
+        return this.findAll(builder, pageable);
     }
 
     Optional<User> findByUsername(String username);
@@ -28,8 +48,11 @@ public interface SqlUserRepository extends UserRepository, JpaRepository<User, L
         return this.findAll();
     }
     @Override
-    default List<User> getAllUsers(Predicate predicate) {
-        return this.findAll(predicate);
+    default List<User> getUsersReadyToAddToProject(Long projectId) {
+        QUser user = QUser.user;
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.andNot(user.projects.any().id.eq(projectId));
+        return this.findAll(builder);
     }
 
     @Override

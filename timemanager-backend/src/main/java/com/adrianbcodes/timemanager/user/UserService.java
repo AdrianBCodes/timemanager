@@ -3,7 +3,6 @@ package com.adrianbcodes.timemanager.user;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
-import com.querydsl.core.BooleanBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,26 +22,7 @@ public class UserService {
         return userRepository.getAllUsers().stream().filter(user -> user.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
-    Page<User> getAllUsersPaged(String name, String surname, String email, Long projectId, int page, int size, String sort) {
-        QUser user = QUser.user;
-
-        BooleanBuilder builder = new BooleanBuilder();
-
-        builder.and(user.status.eq(StatusEnum.ACTIVE));
-
-        if(!name.isEmpty()){
-            builder.and(user.name.containsIgnoreCase(name));
-        }
-        if(!surname.isEmpty()){
-            builder.and(user.surname.containsIgnoreCase(surname));
-        }
-        if(!email.isEmpty()){
-            builder.and(user.email.containsIgnoreCase(email));
-        }
-        if(projectId != null){
-            builder.and(user.projects.any().id.eq(projectId));
-        }
-
+    Page<User> getAllUsersPagedAndFiltered(String name, String surname, String email, Long projectId, int page, int size, String sort) {
         List<Sort.Order> orders = new ArrayList<>();
 
         String[] _sort = sort.split(",");
@@ -50,7 +30,7 @@ public class UserService {
 
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
 
-        return userRepository.getAllUsersPaged(builder, pageable);
+        return userRepository.getAllUsersPagedAndFiltered(name, surname, email, projectId, pageable);
     }
     public User getUserById(Long id){
         return userRepository.getUserById(id).orElseThrow(() -> new NotFoundException("User with id: " + id + " not found"));
@@ -68,11 +48,7 @@ public class UserService {
     }
 
     public List<User> getUsersReadyToAddToProject(Long projectId){
-        QUser user = QUser.user;
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.andNot(user.projects.any().id.eq(projectId));
-
-        return userRepository.getAllUsers(builder);
+        return userRepository.getUsersReadyToAddToProject(projectId);
     }
 
     private Sort.Direction getSortDirection(String direction) {

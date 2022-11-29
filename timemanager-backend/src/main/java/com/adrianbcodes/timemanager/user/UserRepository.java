@@ -1,6 +1,5 @@
 package com.adrianbcodes.timemanager.user;
 
-import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -8,11 +7,11 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserRepository {
-    Page<User> getAllUsersPaged(Predicate predicate, Pageable pageable);
+    Page<User> getAllUsersPagedAndFiltered(String name, String surname, String email, Long projectId, Pageable pageable);
 
     List<User> getAllUsers();
 
-    List<User> getAllUsers(Predicate predicate);
+    List<User> getUsersReadyToAddToProject(Long projectId);
 
     Optional<User> getUserById(Long id);
     User saveUser(User user);

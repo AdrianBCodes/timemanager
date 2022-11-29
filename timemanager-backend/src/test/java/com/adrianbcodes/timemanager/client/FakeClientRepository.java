@@ -2,6 +2,7 @@ package com.adrianbcodes.timemanager.client;
 
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
@@ -10,11 +11,13 @@ public class FakeClientRepository implements ClientRepository{
 
     private final Map<Long, Client> clients = new HashMap<>();
 
-
-    // TODO
     @Override
-    public Page<Client> getAllClientsByNameLikeAndNoteLike(String name, String note, Pageable pageable) {
-        return null;
+    public Page<Client> getAllClientsByNameLikeAndNoteLikeAndStatus(String name, String note, StatusEnum status, Pageable pageable) {
+        List<Client> foundClients = clients.values()
+                .stream()
+                .filter(client ->
+                        client.getName().contains(name) && client.getNote().contains(note) && client.getStatus().equals(status)).toList();
+        return new PageImpl<>(foundClients, pageable, foundClients.size());
     }
 
     @Override
@@ -34,7 +37,7 @@ public class FakeClientRepository implements ClientRepository{
 
     @Override
     public Client saveClient(Client client) {
-        // TODO Generate ID
+        //TODO Generate ID
         clients.put(client.getId(), client);
         return clients.get(client.getId());
     }

@@ -3,23 +3,16 @@ package com.adrianbcodes.timemanager.project;
 import com.adrianbcodes.timemanager.client.Client;
 import com.adrianbcodes.timemanager.client.ClientService;
 import com.adrianbcodes.timemanager.dto.ProjectDTO;
-import com.adrianbcodes.timemanager.dto.TaskDTO;
 import com.adrianbcodes.timemanager.dto.UserDTO;
 import com.adrianbcodes.timemanager.project.infrastructure.ProjectWriteModel;
-import com.adrianbcodes.timemanager.task.Task;
 import com.adrianbcodes.timemanager.task.TaskService;
 import com.adrianbcodes.timemanager.user.User;
 import com.adrianbcodes.timemanager.user.UserService;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/v1/projects")
@@ -37,7 +30,7 @@ public class ProjectController {
     }
 
     @GetMapping()
-    ResponseEntity<Page<ProjectDTO>> getAllProjectsPaged(
+    ResponseEntity<Page<ProjectDTO>> getAllProjectsPagedAndFiltered(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "") String name,
@@ -46,7 +39,7 @@ public class ProjectController {
             @RequestParam(defaultValue = "id,asc") String sort
     ) {
 
-        Page<ProjectDTO> foundProjects = projectService.getAllProjectsPaged(name, clientsIds, ownersIds, page, size, sort).map(Project::convertToProjectDTO);
+        Page<ProjectDTO> foundProjects = projectService.getAllProjectsPagedAndFiltered(name, clientsIds, ownersIds, page, size, sort).map(Project::convertToProjectDTO);
         return ResponseEntity.ok(foundProjects);
     }
 

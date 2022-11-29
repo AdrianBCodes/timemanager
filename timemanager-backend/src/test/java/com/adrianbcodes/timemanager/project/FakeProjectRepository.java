@@ -1,8 +1,8 @@
 package com.adrianbcodes.timemanager.project;
 
 import com.adrianbcodes.timemanager.common.StatusEnum;
-import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
@@ -12,10 +12,16 @@ public class FakeProjectRepository implements ProjectRepository{
     private final Map<Long, Project> projects = new HashMap<>();
 
 
-    //TODO
     @Override
-    public Page<Project> getAllProjectsPaged(Predicate predicate, Pageable pageable) {
-        return null;
+    public Page<Project> getAllProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable) {
+        List<Project> filteredProjects = projects.values()
+                .stream()
+                .filter(project ->
+                    project.getName().contains(name) &&
+                    clientsIds.contains(project.getClient().getId()) &&
+                    ownersIds.contains(project.getOwner().getId())
+                ).toList();
+        return new PageImpl<>(filteredProjects, pageable, filteredProjects.size());
     }
 
     @Override
@@ -26,8 +32,15 @@ public class FakeProjectRepository implements ProjectRepository{
 
     //TODO
     @Override
-    public List<Project> getAllProjects(Predicate predicate) {
-        return null;
+    public List<Project> getAllProjectsOfParticipantWithUsername(String username) {
+        List<Project> filteredProjects = projects.values()
+                .stream()
+                .filter(project ->
+                        project.getParticipants()
+                                .stream().anyMatch(user ->
+                                        user.getUsername().equals(username)))
+                .toList();
+        return filteredProjects;
     }
 
     @Override
@@ -37,7 +50,11 @@ public class FakeProjectRepository implements ProjectRepository{
 
     @Override
     public List<Project> getAllProjectsByNameAndStatus(String name, StatusEnum status) {
-        return projects.values().stream().filter(project -> project.getName().equals(name) && project.getStatus().equals(StatusEnum.ACTIVE)).toList();
+        return projects.values()
+                .stream()
+                .filter(project ->
+                        project.getName().equals(name) && project.getStatus().equals(StatusEnum.ACTIVE))
+                .toList();
     }
 
     @Override

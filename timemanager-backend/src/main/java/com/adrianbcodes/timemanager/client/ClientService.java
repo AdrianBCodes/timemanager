@@ -35,7 +35,7 @@ public class ClientService {
             orders.add(new Sort.Order(SortMapper.getSortDirection(sort[1]), sort[0]));
         }
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
-        return clientRepository.getAllClientsByNameLikeAndNoteLike(name, note, pageable);
+        return clientRepository.getAllClientsByNameLikeAndNoteLikeAndStatus(name, note, StatusEnum.ACTIVE, pageable);
     }
     public Client getClientById(Long id){
         return clientRepository.getClientById(id).orElseThrow(() -> new NotFoundException("Client with id: " + id + " not found"));

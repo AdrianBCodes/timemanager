@@ -2,7 +2,6 @@ package com.adrianbcodes.timemanager.trackerEvent;
 
 import com.adrianbcodes.timemanager.exceptions.UnauthorizedException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
-import com.querydsl.core.BooleanBuilder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -10,10 +9,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,73 +19,22 @@ public class TrackerEventService {
     public TrackerEventService(TrackerEventRepository trackerEventRepository) {
         this.trackerEventRepository = trackerEventRepository;
     }
-    Page<TrackerEvent> getAllTrackerEventsPaged(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, String date, List<Long> usersIds, int page, int size, String sort){
-        QTrackerEvent trackerEvent = QTrackerEvent.trackerEvent;
-        BooleanBuilder builder = new BooleanBuilder();
-
-        builder.and(trackerEvent.description.containsIgnoreCase(description));
-
-        if(!projectsIds.isEmpty()){
-            builder.and(trackerEvent.project.id.in(projectsIds));
-        }
-        if(!clientsIds.isEmpty()){
-            builder.and(trackerEvent.project.client.id.in(clientsIds));
-        }
-        if(!tasksIds.isEmpty()){
-            builder.and(trackerEvent.task.id.in(tasksIds));
-        }
-        if(duration != null){
-            builder.and(trackerEvent.duration.eq(duration));
-        }
-        if(date != null){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            LocalDateTime localDateTime = LocalDateTime.parse(date, formatter);
-            builder.and(trackerEvent.date.eq(localDateTime));
-        }
-        if(!usersIds.isEmpty()){
-            builder.and(trackerEvent.user.id.in(usersIds));
-        }
+    Page<TrackerEvent> getAllTrackerEventsPagedAndFiltered(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, String date, List<Long> usersIds, int page, int size, String sort){
         List<Sort.Order> orders = new ArrayList<>();
         String[] _sort = sort.split(",");
         orders.add(new Sort.Order(getSortDirection(_sort[1]), _sort[0]));
 
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
 
-        return trackerEventRepository.getAllTrackerEventsPaged(builder, pageable);
+        return trackerEventRepository.getAllTrackerEventsPagedAndFiltered(description, projectsIds, clientsIds, tasksIds, duration, date, usersIds, pageable);
     }
 
-    List<TrackerEvent> getAllTrackerEvents(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, String date, List<Long> usersIds, String sort){
-        QTrackerEvent trackerEvent = QTrackerEvent.trackerEvent;
-        BooleanBuilder builder = new BooleanBuilder();
-
-        builder.and(trackerEvent.description.containsIgnoreCase(description));
-
-        if(!projectsIds.isEmpty()){
-            builder.and(trackerEvent.project.id.in(projectsIds));
-        }
-        if(!clientsIds.isEmpty()){
-            builder.and(trackerEvent.project.client.id.in(clientsIds));
-        }
-        if(!tasksIds.isEmpty()){
-            builder.and(trackerEvent.task.id.in(tasksIds));
-        }
-        if(duration != null){
-            builder.and(trackerEvent.duration.eq(duration));
-        }
-        if(date != null){
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
-            LocalDateTime localDateTime = LocalDateTime.parse(date, formatter);
-            builder.and(trackerEvent.date.eq(localDateTime));
-        }
-        if(!usersIds.isEmpty()){
-            builder.and(trackerEvent.user.id.in(usersIds));
-        }
-
+    List<TrackerEvent> getAllTrackerEventsFilteredAndSorted(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, String date, List<Long> usersIds, String sort){
         List<Sort.Order> orders = new ArrayList<>();
         String[] _sort = sort.split(",");
         orders.add(new Sort.Order(getSortDirection(_sort[1]), _sort[0]));
 
-        return trackerEventRepository.getAllTrackerEvents(builder, Sort.by(orders));
+        return trackerEventRepository.getAllTrackerEventsFilteredAndSorted(description, projectsIds, clientsIds, tasksIds, duration, date, usersIds, Sort.by(orders));
     }
 
     TrackerEvent getTrackerEventById(Long id){
@@ -112,17 +57,7 @@ public class TrackerEventService {
             throw new UnauthorizedException("Unauthorized");
         }
 
-        QTrackerEvent trackerEvent = QTrackerEvent.trackerEvent;
-        BooleanBuilder builder = new BooleanBuilder();
-        builder.and(trackerEvent.user.username.eq(userDetails.getUsername()));
-        if(date != null){
-            LocalDate localDate = date.toLocalDate();
-            LocalDateTime startOfDate = localDate.atTime(LocalTime.MIN);
-//            LocalDateTime endOfDate = localDate.atTime(LocalTime.MAX);
-            builder.and(trackerEvent.date.eq(startOfDate));
-        }
-
-        return trackerEventRepository.getAllTrackerEvents(builder);
+        return trackerEventRepository.getAllTrackerEventsFilteredByUsernameAndDate(userDetails.getUsername(), date);
     }
 
     private Sort.Direction getSortDirection(String direction) {

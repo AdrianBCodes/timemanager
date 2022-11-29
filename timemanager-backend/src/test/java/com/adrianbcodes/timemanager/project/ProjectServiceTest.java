@@ -20,7 +20,7 @@ class ProjectServiceTest {
 
     @BeforeEach
     void init() {
-        projectService = new ProjectService(new FakeProjectRepository(), new FakeUserRepository());
+        projectService = new ProjectService(new FakeProjectRepository());
     }
 
     @Test

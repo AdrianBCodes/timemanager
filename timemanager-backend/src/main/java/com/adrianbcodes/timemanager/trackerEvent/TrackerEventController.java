@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,7 +36,7 @@ public class TrackerEventController {
     }
 
     @GetMapping("/paged")
-    ResponseEntity<Page<TrackerEventDTO>> getAllTrackerEventsPaged(
+    ResponseEntity<Page<TrackerEventDTO>> getAllTrackerEventsPagedAndFiltered(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "") String description,
@@ -49,7 +48,7 @@ public class TrackerEventController {
             @RequestParam(defaultValue = "") List<Long> usersIds,
             @RequestParam(defaultValue = "id,asc") String sort
     ) {
-        Page<TrackerEventDTO> foundTrackerEvents = trackerEventService.getAllTrackerEventsPaged(description, projectsIds,clientsIds , tasksIds, duration, date, usersIds, page, size, sort).map(TrackerEvent::convertToTrackerEventDTO);
+        Page<TrackerEventDTO> foundTrackerEvents = trackerEventService.getAllTrackerEventsPagedAndFiltered(description, projectsIds,clientsIds , tasksIds, duration, date, usersIds, page, size, sort).map(TrackerEvent::convertToTrackerEventDTO);
         return ResponseEntity.ok(foundTrackerEvents);
     }
 
@@ -134,7 +133,7 @@ public class TrackerEventController {
         response.setHeader("Content-disposition", "attachment; filename=fileee.xlsx");
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
 
-        List<TrackerEventDTO> foundTrackerEvents = trackerEventService.getAllTrackerEvents(description, projectsIds,clientsIds , tasksIds, duration, date, usersIds, sort).stream().map(TrackerEvent::convertToTrackerEventDTO).toList();
+        List<TrackerEventDTO> foundTrackerEvents = trackerEventService.getAllTrackerEventsFilteredAndSorted(description, projectsIds,clientsIds , tasksIds, duration, date, usersIds, sort).stream().map(TrackerEvent::convertToTrackerEventDTO).toList();
         TrackerEventExcelExporter excelExporter = new TrackerEventExcelExporter(foundTrackerEvents);
         excelExporter.export(response);
     }

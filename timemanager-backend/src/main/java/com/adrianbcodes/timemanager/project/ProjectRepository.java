@@ -9,10 +9,10 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProjectRepository {
-    Page<Project> getAllProjectsPaged(Predicate predicate, Pageable pageable);
+    Page<Project> getAllProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable);
     List<Project> getAllProjects();
 
-    List<Project> getAllProjects(Predicate predicate);
+    List<Project> getAllProjectsOfParticipantWithUsername(String username);
 
     Optional<Project> getProjectById(Long id);
 

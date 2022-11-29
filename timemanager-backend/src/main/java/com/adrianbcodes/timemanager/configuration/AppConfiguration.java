@@ -35,8 +35,8 @@ public class AppConfiguration {
     }
 
     @Bean
-    ProjectService projectService(SqlProjectRepository sqlProjectRepository, SqlUserRepository sqlUserRepository) {
-        return new ProjectService(sqlProjectRepository, sqlUserRepository);
+    ProjectService projectService(SqlProjectRepository sqlProjectRepository) {
+        return new ProjectService(sqlProjectRepository);
     }
 
     @Bean

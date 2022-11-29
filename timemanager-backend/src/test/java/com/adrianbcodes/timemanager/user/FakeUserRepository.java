@@ -2,6 +2,7 @@ package com.adrianbcodes.timemanager.user;
 
 import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
@@ -9,11 +10,17 @@ import java.util.*;
 public class FakeUserRepository implements UserRepository{
 
     private final Map<Long, User> users = new HashMap<>();
-
-    //TODO
     @Override
-    public Page<User> getAllUsersPaged(Predicate predicate, Pageable pageable) {
-        return null;
+    public Page<User> getAllUsersPagedAndFiltered(String name, String surname, String email, Long projectId, Pageable pageable) {
+        List<User> filteredUsers = users.values()
+                .stream()
+                .filter(user ->
+                        user.getName().contains(name) &&
+                        user.getSurname().contains(surname) &&
+                        user.getEmail().contains(email) &&
+                        user.getProjects().stream().anyMatch(project -> project.getId().equals(projectId)))
+                .toList();
+        return new PageImpl<>(filteredUsers, pageable, filteredUsers.size());
     }
 
     @Override
@@ -21,11 +28,12 @@ public class FakeUserRepository implements UserRepository{
         return users.values().stream().toList();
     }
 
-
-    //TODO
     @Override
-    public List<User> getAllUsers(Predicate predicate) {
-        return null;
+    public List<User> getUsersReadyToAddToProject(Long projectId) {
+        return users.values()
+                .stream()
+                .filter(user -> user.getProjects().stream().anyMatch(project -> project.getId().equals(projectId)))
+                .toList();
     }
 
     @Override
@@ -48,16 +56,23 @@ public class FakeUserRepository implements UserRepository{
 
     @Override
     public Optional<User> getByUsername(String username) {
-        return Optional.empty();
+        return users.values()
+                .stream()
+                .filter(user -> user.getUsername().equals(username))
+                .findFirst();
     }
 
     @Override
     public Boolean existByUsername(String username) {
-        return null;
+        return users.values()
+                .stream()
+                .anyMatch(user -> user.getUsername().equals(username));
     }
 
     @Override
     public Boolean existByEmail(String email) {
-        return null;
+        return users.values()
+                .stream()
+                .anyMatch(user -> user.getEmail().equals(email));
     }
 }

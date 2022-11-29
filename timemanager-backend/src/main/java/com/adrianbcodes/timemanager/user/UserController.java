@@ -1,16 +1,9 @@
 package com.adrianbcodes.timemanager.user;
 
 import com.adrianbcodes.timemanager.dto.UserDTO;
-import com.adrianbcodes.timemanager.user.User;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/users")
@@ -22,7 +15,7 @@ public class UserController {
     }
 
     @GetMapping()
-    ResponseEntity<Page<UserDTO>> getAllUsersPaged(
+    ResponseEntity<Page<UserDTO>> getAllUsersPagedAndFiltered(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "") String name,
@@ -32,7 +25,7 @@ public class UserController {
             @RequestParam(defaultValue = "id,asc") String sort
     ) {
 
-        Page<UserDTO> foundUsers = userService.getAllUsersPaged(name, surname, email, projectId, page, size, sort)
+        Page<UserDTO> foundUsers = userService.getAllUsersPagedAndFiltered(name, surname, email, projectId, page, size, sort)
                 .map(User::convertToUserDTO);
         return ResponseEntity.ok(foundUsers);
     }

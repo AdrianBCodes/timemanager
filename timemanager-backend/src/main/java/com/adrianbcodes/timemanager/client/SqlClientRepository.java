@@ -20,8 +20,8 @@ public interface SqlClientRepository extends ClientRepository, JpaRepository<Cli
 
 
     @Override
-    default Page<Client> getAllClientsByNameLikeAndNoteLike(String name, String note, Pageable pageable){
-        return this.findByNameContainsIgnoreCaseAndNoteContainsIgnoreCaseAndStatus(name, note, StatusEnum.ACTIVE ,pageable);
+    default Page<Client> getAllClientsByNameLikeAndNoteLikeAndStatus(String name, String note, StatusEnum status, Pageable pageable){
+        return this.findByNameContainsIgnoreCaseAndNoteContainsIgnoreCaseAndStatus(name, note, status ,pageable);
     }
 
     @Override
