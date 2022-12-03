@@ -23,17 +23,12 @@ public class ClientService {
         return clientRepository.getAllClients().stream().filter(client -> client.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
-    Page<Client> getAllClientsPaged(String name, String note, int page, int size, String[] sort) {
+    Page<Client> getAllActiveClientsPagedAndFiltered(String name, String note, int page, int size, String sort) {
         List<Sort.Order> orders = new ArrayList<>();
 
-        if (sort[0].contains(",")) {
-            for (String sortOrder : sort) {
-                String[] _sort = sortOrder.split(",");
-                orders.add(new Sort.Order(SortMapper.getSortDirection(_sort[1]), _sort[0]));
-            }
-        } else {
-            orders.add(new Sort.Order(SortMapper.getSortDirection(sort[1]), sort[0]));
-        }
+        String[] _sort = sort.split(",");
+        orders.add(new Sort.Order(SortMapper.getSortDirection(_sort[1]), _sort[0]));
+
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
         return clientRepository.getAllClientsByNameLikeAndNoteLikeAndStatus(name, note, StatusEnum.ACTIVE, pageable);
     }

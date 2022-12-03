@@ -30,7 +30,7 @@ public class ProjectController {
     }
 
     @GetMapping()
-    ResponseEntity<Page<ProjectDTO>> getAllProjectsPagedAndFiltered(
+    ResponseEntity<Page<ProjectDTO>> getAllActiveProjectsPagedAndFiltered(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "") String name,
@@ -38,8 +38,7 @@ public class ProjectController {
             @RequestParam(defaultValue = "") List<Long> ownersIds,
             @RequestParam(defaultValue = "id,asc") String sort
     ) {
-
-        Page<ProjectDTO> foundProjects = projectService.getAllProjectsPagedAndFiltered(name, clientsIds, ownersIds, page, size, sort).map(Project::convertToProjectDTO);
+        Page<ProjectDTO> foundProjects = projectService.getAllActiveProjectsPagedAndFiltered(name, clientsIds, ownersIds, page, size, sort).map(Project::convertToProjectDTO);
         return ResponseEntity.ok(foundProjects);
     }
 

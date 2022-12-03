@@ -2,7 +2,9 @@ package com.adrianbcodes.timemanager.client;
 
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
+import com.adrianbcodes.timemanager.exceptions.BlankParameterException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
+import com.adrianbcodes.timemanager.exceptions.NotUniqueException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,18 +23,8 @@ class ClientServiceTest {
     @Test
     void getAllClients() {
         //given
-        Client client = ClientBuilder
-                .builder()
-                .withId(1L)
-                .withName("Client1")
-                .withNote("Note1")
-                .buildWithId();
-        Client client2 = ClientBuilder
-                .builder()
-                .withId(2L)
-                .withName("Client2")
-                .withNote("Note2")
-                .buildWithId();
+        Client client = ClientExample.getClient1();
+        Client client2 = ClientExample.getClient2();
         clientService.saveClient(client);
         clientService.saveClient(client2);
         //when
@@ -55,18 +47,8 @@ class ClientServiceTest {
     @Test
     void getAllClients_onlyClientsWithStatusDeletedInDatabase_returnsEmptyList() {
         //given
-        Client client = ClientBuilder
-                .builder()
-                .withId(1L)
-                .withName("Client1")
-                .withNote("Note1")
-                .buildWithId();
-        Client client2 = ClientBuilder
-                .builder()
-                .withId(2L)
-                .withName("Client2")
-                .withNote("Note2")
-                .buildWithId();
+        Client client = ClientExample.getClient1();
+        Client client2 = ClientExample.getClient2();
         clientService.saveClient(client);
         clientService.saveClient(client2);
         clientService.deleteClientById(client.getId());
@@ -81,45 +63,36 @@ class ClientServiceTest {
     @Test
     void getAllClients_ignoresClientsWithStatusDeleted() {
         //given
-        Client client = ClientBuilder
-                .builder()
-                .withId(1L)
-                .withName("Client1")
-                .withNote("Note1")
-                .buildWithId();
-        Client client2 = ClientBuilder
-                .builder()
-                .withId(2L)
-                .withName("Client2")
-                .withNote("Note2")
-                .buildWithId();
-        Client client3 = ClientBuilder
-                .builder()
-                .withId(3L)
-                .withName("Client3")
-                .withNote("Note3")
-                .buildWithId();
+        Client client = ClientExample.getClient1();
+        Client client2 = ClientExample.getClient2();
         clientService.saveClient(client);
         clientService.saveClient(client2);
-        clientService.saveClient(client3);
-        clientService.deleteClientById(client3.getId());
+        clientService.deleteClientById(client2.getId());
         //when
         var result = clientService.getAllClients();
         //then
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0)).isEqualTo(client);
-        assertThat(result.get(1)).isEqualTo(client2);
+    }
+    @Test
+    void getAllActiveClientsPagedAndFiltered() {
+        //given
+        Client client = ClientExample.getClient1();
+        Client client2 = ClientExample.getClient2();
+        clientService.saveClient(client);
+        clientService.saveClient(client2);
+        //when
+        var result = clientService.getAllActiveClientsPagedAndFiltered(client.getName(), client.getNote(), 0, 5, "id,asc");
+        //then
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0)).isEqualTo(client);
     }
 
     @Test
     void getClientById() {
         //given
-        Client client = ClientBuilder
-                .builder()
-                .withId(1L)
-                .withName("Client1")
-                .withNote("Note1")
-                .buildWithId();
+        Client client = ClientExample.getClient1();
         clientService.saveClient(client);
         //when
         var result = clientService.getClientById(client.getId());
@@ -139,12 +112,7 @@ class ClientServiceTest {
     @Test
     void saveClient() {
         //given
-        Client client = ClientBuilder
-                .builder()
-                .withId(1L)
-                .withName("Client1")
-                .withNote("Note1")
-                .buildWithId();
+        Client client = ClientExample.getClient1();
         //when
         clientService.saveClient(client);
         //then
@@ -152,14 +120,31 @@ class ClientServiceTest {
     }
 
     @Test
+    void saveClient_withEmptyName_throwsBlankParameterException() {
+        //given
+        Client client = ClientExample.getClient3WithEmptyName();
+        //when
+        var exception = catchThrowable(() -> clientService.saveClient(client));
+        //then
+        assertThat(exception).isInstanceOf(BlankParameterException.class);
+    }
+
+    @Test
+    void saveClient_activeClientAlreadyHasSameName_throwsNotUniqueException() {
+        //given
+        Client client = ClientExample.getClient1();
+        Client client2 = ClientExample.getClient1();
+        clientService.saveClient(client);
+        //when
+        var exception = catchThrowable(() -> clientService.saveClient(client2));
+        //then
+        assertThat(exception).isInstanceOf(NotUniqueException.class);
+    }
+
+    @Test
     void deleteClientById() {
         //given
-        Client client = ClientBuilder
-                .builder()
-                .withId(1L)
-                .withName("Client1")
-                .withNote("Note1")
-                .buildWithId();
+        Client client = ClientExample.getClient1();
         client.setStatus(StatusEnum.ACTIVE);
         clientService.saveClient(client);
         //when
@@ -171,12 +156,7 @@ class ClientServiceTest {
     @Test
     void deleteClientById_clientHasStatusDeleted_throwsAlreadyDeletedException() {
         //given
-        Client client = ClientBuilder
-                .builder()
-                .withId(1L)
-                .withName("Client1")
-                .withNote("Note1")
-                .buildWithId();
+        Client client = ClientExample.getClient1();
         client.setStatus(StatusEnum.DELETED);
         clientService.saveClient(client);
         //when

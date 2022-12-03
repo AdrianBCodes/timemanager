@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TagRepository {
-    Page<Tag> getAllTagsByNameLike(String name, Pageable pageable);
+    Page<Tag> getAllTagsByNameLikeAndStatus(String name, StatusEnum status, Pageable pageable);
     List<Tag> getAllTags();
     Optional<Tag> getTagById(Long id);
 

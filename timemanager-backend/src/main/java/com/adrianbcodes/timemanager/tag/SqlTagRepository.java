@@ -14,8 +14,8 @@ public interface SqlTagRepository extends TagRepository, JpaRepository<Tag, Long
 
     Page<Tag> findByNameContainsIgnoreCaseAndStatus(String name, StatusEnum status, Pageable pageable);
     @Override
-    default Page<Tag> getAllTagsByNameLike(String name, Pageable pageable){
-        return this.findByNameContainsIgnoreCaseAndStatus(name, StatusEnum.ACTIVE ,pageable);
+    default Page<Tag> getAllTagsByNameLikeAndStatus(String name, StatusEnum status, Pageable pageable){
+        return this.findByNameContainsIgnoreCaseAndStatus(name, status ,pageable);
     }
     @Override
     default List<Tag> getAllTags() {

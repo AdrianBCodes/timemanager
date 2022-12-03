@@ -12,10 +12,12 @@ public class FakeTagRepository implements TagRepository{
     private final Map<Long, Tag> tags = new HashMap<>();
 
     @Override
-    public Page<Tag> getAllTagsByNameLike(String name, Pageable pageable) {
+    public Page<Tag> getAllTagsByNameLikeAndStatus(String name, StatusEnum status, Pageable pageable) {
         List<Tag> filteredTags = tags.values()
                 .stream()
-                .filter(tag -> tag.getName().equals(name))
+                .filter(tag ->
+                        tag.getName().equals(name) &&
+                        tag.getStatus().equals(status))
                 .toList();
         return new PageImpl<>(filteredTags, pageable, filteredTags.size());
     }

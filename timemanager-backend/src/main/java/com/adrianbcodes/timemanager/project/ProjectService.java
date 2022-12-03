@@ -7,12 +7,8 @@ import com.adrianbcodes.timemanager.exceptions.BlankParameterException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
 import com.adrianbcodes.timemanager.exceptions.NotUniqueException;
 import com.adrianbcodes.timemanager.user.User;
-import com.adrianbcodes.timemanager.user.UserRepository;
-import com.querydsl.core.BooleanBuilder;
 import org.springframework.data.domain.*;
 
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -27,14 +23,14 @@ public class ProjectService {
         return projectRepository.getAllProjects().stream().filter(project -> project.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
-    Page<Project> getAllProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, int page, int size, String sort){
+    Page<Project> getAllActiveProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, int page, int size, String sort){
         List<Sort.Order> orders = new ArrayList<>();
 
         String[] _sort = sort.split(",");
         orders.add(new Sort.Order(SortMapper.getSortDirection(_sort[1]), _sort[0]));
 
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
-        return projectRepository.getAllProjectsPagedAndFiltered(name, clientsIds, ownersIds, pageable);
+        return projectRepository.getAllActiveProjectsPagedAndFiltered(name, clientsIds, ownersIds, pageable);
     }
     public Project getProjectById(Long id){
         return projectRepository.getProjectById(id).orElseThrow(() -> new NotFoundException("Project with id: " + id + " not found"));

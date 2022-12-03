@@ -13,10 +13,11 @@ public class FakeProjectRepository implements ProjectRepository{
 
 
     @Override
-    public Page<Project> getAllProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable) {
+    public Page<Project> getAllActiveProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable) {
         List<Project> filteredProjects = projects.values()
                 .stream()
                 .filter(project ->
+                    project.getStatus().equals(StatusEnum.ACTIVE) &&
                     project.getName().contains(name) &&
                     clientsIds.contains(project.getClient().getId()) &&
                     ownersIds.contains(project.getOwner().getId())

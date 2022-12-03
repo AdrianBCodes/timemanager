@@ -5,11 +5,6 @@ import com.adrianbcodes.timemanager.dto.ClientDTO;
 import org.springframework.data.domain.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/v1/clients")
@@ -22,14 +17,14 @@ public class ClientController {
 
 
     @GetMapping()
-    ResponseEntity<Page<ClientDTO>> getAllClientsPaged(
+    ResponseEntity<Page<ClientDTO>> getAllActiveClientsPagedAndFiltered(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "") String name,
             @RequestParam(defaultValue = "") String note,
-            @RequestParam(defaultValue = "id,asc") String[] sort
+            @RequestParam(defaultValue = "id,asc") String sort
     ) {
-        Page<ClientDTO> foundClients = clientService.getAllClientsPaged(name, note, page, size, sort).map(Client::convertToClientDTO);
+        Page<ClientDTO> foundClients = clientService.getAllActiveClientsPagedAndFiltered(name, note, page, size, sort).map(Client::convertToClientDTO);
         return ResponseEntity.ok(foundClients);
     }
 

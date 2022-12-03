@@ -2,7 +2,9 @@ package com.adrianbcodes.timemanager.tag;
 
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
+import com.adrianbcodes.timemanager.exceptions.BlankParameterException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
+import com.adrianbcodes.timemanager.exceptions.NotUniqueException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -21,14 +23,8 @@ class TagServiceTest {
     @Test
     void getAllTags() {
         //given
-        Tag tag = TagBuilder.builder()
-                .withId(1L)
-                .withName("Tag1")
-                .buildWithId();
-        Tag tag2 = TagBuilder.builder()
-                .withId(2L)
-                .withName("Tag2")
-                .buildWithId();
+        Tag tag = TagExample.getTag1();
+        Tag tag2 = TagExample.getTag2();
         tagService.saveTag(tag);
         tagService.saveTag(tag2);
         //when
@@ -51,14 +47,8 @@ class TagServiceTest {
     @Test
     void getAllTags_onlyTagsWithStatusDeletedInDatabase_returnsEmptyList() {
         //given
-        Tag tag = TagBuilder.builder()
-                .withId(1L)
-                .withName("Tag1")
-                .buildWithId();
-        Tag tag2 = TagBuilder.builder()
-                .withId(2L)
-                .withName("Tag2")
-                .buildWithId();
+        Tag tag = TagExample.getTag1();
+        Tag tag2 = TagExample.getTag2();
         tagService.saveTag(tag);
         tagService.saveTag(tag2);
         tagService.deleteTagById(tag.getId());
@@ -72,37 +62,37 @@ class TagServiceTest {
     @Test
     void getAllTags_ignoresTagsWithStatusDeleted() {
         //given
-        Tag tag = TagBuilder.builder()
-                .withId(1L)
-                .withName("Tag1")
-                .buildWithId();
-        Tag tag2 = TagBuilder.builder()
-                .withId(2L)
-                .withName("Tag2")
-                .buildWithId();
-        Tag tag3 = TagBuilder.builder()
-                .withId(3L)
-                .withName("Tag3")
-                .buildWithId();
+        Tag tag = TagExample.getTag1();
+        Tag tag2 = TagExample.getTag2();
         tagService.saveTag(tag);
         tagService.saveTag(tag2);
-        tagService.saveTag(tag3);
-        tagService.deleteTagById(tag3.getId());
+        tagService.deleteTagById(tag2.getId());
         //when
         var result = tagService.getAllTags();
         //then
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0)).isEqualTo(tag);
-        assertThat(result.get(1)).isEqualTo(tag2);
+    }
+
+    @Test
+    void getAllActiveTagsPagedAndFiltered(){
+        //given
+        Tag tag = TagExample.getTag1();
+        Tag tag2 = TagExample.getTag2();
+        tagService.saveTag(tag);
+        tagService.saveTag(tag2);
+        //when
+        var result = tagService.getAllActiveTagsPagedAndFiltered(tag.getName(), 0, 5, "id,asc");
+        //then
+        assertThat(result.getTotalPages()).isEqualTo(1);
+        assertThat(result.getTotalElements()).isEqualTo(1);
+        assertThat(result.getContent().get(0)).isEqualTo(tag);
     }
 
     @Test
     void getTagById() {
         //given
-        Tag tag = TagBuilder.builder()
-                .withId(1L)
-                .withName("Tag1")
-                .buildWithId();
+        Tag tag = TagExample.getTag1();
         tagService.saveTag(tag);
         //when
         var result = tagService.getTagById(tag.getId());
@@ -122,10 +112,7 @@ class TagServiceTest {
     @Test
     void saveTag() {
         //given
-        Tag tag = TagBuilder.builder()
-                .withId(1L)
-                .withName("Tag1")
-                .buildWithId();
+        Tag tag = TagExample.getTag1();
         //when
         tagService.saveTag(tag);
         //then
@@ -133,12 +120,31 @@ class TagServiceTest {
     }
 
     @Test
+    void saveTag_withEmptyName_throwsBlankParameterException() {
+        //given
+        Tag tag = TagExample.getTag3WithEmptyName();
+        //when
+        var exception = catchThrowable(() -> tagService.saveTag(tag));
+        //then
+        assertThat(exception).isInstanceOf(BlankParameterException.class);
+    }
+
+    @Test
+    void saveTag_activeTagAlreadyHasSameName_throwsNotUniqueException() {
+        //given
+        Tag tag = TagExample.getTag1();
+        Tag tag2 = TagExample.getTag1();
+        tagService.saveTag(tag);
+        //when
+        var exception = catchThrowable(() -> tagService.saveTag(tag2));
+        //then
+        assertThat(exception).isInstanceOf(NotUniqueException.class);
+    }
+
+    @Test
     void deleteTagById() {
         //given
-        Tag tag = TagBuilder.builder()
-                .withId(1L)
-                .withName("Tag1")
-                .buildWithId();
+        Tag tag = TagExample.getTag1();
         tag.setStatus(StatusEnum.ACTIVE);
         tagService.saveTag(tag);
         //when
@@ -150,10 +156,7 @@ class TagServiceTest {
     @Test
     void deleteTagById_tagHasStatusDeleted_throwsAlreadyDeletedException() {
         //given
-        Tag tag = TagBuilder.builder()
-                .withId(1L)
-                .withName("Tag1")
-                .buildWithId();
+        Tag tag = TagExample.getTag1();
         tag.setStatus(StatusEnum.DELETED);
         tagService.saveTag(tag);
         //when

@@ -21,24 +21,8 @@ class UserServiceTest {
     @Test
     void getAllUsers() {
         //given
-        User user = UserBuilder
-                .builder()
-                .withId(1L)
-                .withName("Name1")
-                .withSurname("Surname1")
-                .withEmail("email1@email.com")
-                .withUsername("Username1")
-                .withPassword("Password1")
-                .buildWithId();
-        User user2 = UserBuilder
-                .builder()
-                .withId(2L)
-                .withName("Name2")
-                .withSurname("Surname2")
-                .withEmail("email2@email.com")
-                .withUsername("Username2")
-                .withPassword("Password2")
-                .buildWithId();
+        User user = UserExample.getUser1();
+        User user2 = UserExample.getUser2();
         userService.saveUser(user);
         userService.saveUser(user2);
         //when
@@ -61,24 +45,8 @@ class UserServiceTest {
     @Test
     void getAllUsers_onlyUsersWithStatusDeletedInDatabase_returnsEmptyList() {
         //given
-        User user = UserBuilder
-                .builder()
-                .withId(1L)
-                .withName("Name1")
-                .withSurname("Surname1")
-                .withEmail("email1@email.com")
-                .withUsername("Username1")
-                .withPassword("Password1")
-                .buildWithId();
-        User user2 = UserBuilder
-                .builder()
-                .withId(2L)
-                .withName("Name2")
-                .withSurname("Surname2")
-                .withEmail("email2@email.com")
-                .withUsername("Username2")
-                .withPassword("Password2")
-                .buildWithId();
+        User user = UserExample.getUser1();
+        User user2 = UserExample.getUser2();
         userService.saveUser(user);
         userService.saveUser(user2);
         userService.deleteUserById(user.getId());
@@ -93,57 +61,22 @@ class UserServiceTest {
     @Test
     void getAllUsers_ignoresUsersWithStatusDeleted() {
         //given
-        User user = UserBuilder
-                .builder()
-                .withId(1L)
-                .withName("Name1")
-                .withSurname("Surname1")
-                .withEmail("email1@email.com")
-                .withUsername("Username1")
-                .withPassword("Password1")
-                .buildWithId();
-        User user2 = UserBuilder
-                .builder()
-                .withId(2L)
-                .withName("Name2")
-                .withSurname("Surname2")
-                .withEmail("email2@email.com")
-                .withUsername("Username2")
-                .withPassword("Password2")
-                .buildWithId();
-        User user3 = UserBuilder
-                .builder()
-                .withId(3L)
-                .withName("Name3")
-                .withSurname("Surname3")
-                .withEmail("email3@email.com")
-                .withUsername("Username3")
-                .withPassword("Password3")
-                .buildWithId();
+        User user = UserExample.getUser1();
+        User user2 = UserExample.getUser2();
         userService.saveUser(user);
         userService.saveUser(user2);
-        userService.saveUser(user3);
-        userService.deleteUserById(user3.getId());
+        userService.deleteUserById(user2.getId());
         //when
         var result = userService.getAllUsers();
         //then
-        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0)).isEqualTo(user);
-        assertThat(result.get(1)).isEqualTo(user2);
     }
 
     @Test
     void getUserById() {
         //given
-        User user = UserBuilder
-                .builder()
-                .withId(1L)
-                .withName("Name1")
-                .withSurname("Surname1")
-                .withEmail("email1@email.com")
-                .withUsername("Username1")
-                .withPassword("Password1")
-                .buildWithId();
+        User user = UserExample.getUser1();
         userService.saveUser(user);
         //when
         var result = userService.getUserById(user.getId());
@@ -163,15 +96,7 @@ class UserServiceTest {
     @Test
     void saveUser() {
         //given
-        User user = UserBuilder
-                .builder()
-                .withId(1L)
-                .withName("Name1")
-                .withSurname("Surname1")
-                .withEmail("email1@email.com")
-                .withUsername("Username1")
-                .withPassword("Password1")
-                .buildWithId();
+        User user = UserExample.getUser1();
         //when
         userService.saveUser(user);
         //then
@@ -181,15 +106,7 @@ class UserServiceTest {
     @Test
     void deleteUserById() {
         //given
-        User user = UserBuilder
-                .builder()
-                .withId(1L)
-                .withName("Name1")
-                .withSurname("Surname1")
-                .withEmail("email1@email.com")
-                .withUsername("Username1")
-                .withPassword("Password1")
-                .buildWithId();
+        User user = UserExample.getUser1();
         user.setStatus(StatusEnum.ACTIVE);
         userService.saveUser(user);
         //when
@@ -201,15 +118,7 @@ class UserServiceTest {
     @Test
     void deleteUserById_userHasStatusDeleted_throwsAlreadyDeletedException() {
         //given
-        User user = UserBuilder
-                .builder()
-                .withId(1L)
-                .withName("Name1")
-                .withSurname("Surname1")
-                .withEmail("email1@email.com")
-                .withUsername("Username1")
-                .withPassword("Password1")
-                .buildWithId();
+        User user = UserExample.getUser1();
         user.setStatus(StatusEnum.DELETED);
         userService.saveUser(user);
         //when

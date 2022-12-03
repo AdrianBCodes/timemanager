@@ -1,7 +1,6 @@
 package com.adrianbcodes.timemanager.project;
 
 import com.adrianbcodes.timemanager.common.StatusEnum;
-import com.querydsl.core.types.Predicate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -9,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProjectRepository {
-    Page<Project> getAllProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable);
+    Page<Project> getAllActiveProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable);
     List<Project> getAllProjects();
 
     List<Project> getAllProjectsOfParticipantWithUsername(String username);

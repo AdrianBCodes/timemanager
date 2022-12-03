@@ -23,7 +23,7 @@ public interface SqlProjectRepository extends ProjectRepository, JpaRepository<P
     List<Project> findAllByNameAndStatus(String name, StatusEnum status);
 
     @Override
-    default Page<Project> getAllProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable){
+    default Page<Project> getAllActiveProjectsPagedAndFiltered(String name, List<Long> clientsIds, List<Long> ownersIds, Pageable pageable){
         QProject project = QProject.project;
 
         BooleanBuilder builder = new BooleanBuilder();
