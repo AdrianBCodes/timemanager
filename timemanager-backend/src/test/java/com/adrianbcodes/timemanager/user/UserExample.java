@@ -24,4 +24,16 @@ public class UserExample {
                 .withPassword("Password2")
                 .buildWithId();
     }
+
+    public static User getUser3WithEmptyUsername(){
+        return UserBuilder
+                .builder()
+                .withId(3L)
+                .withName("Name3")
+                .withSurname("Surname3")
+                .withEmail("email3@email.com")
+                .withUsername("")
+                .withPassword("Password3")
+                .buildWithId();
+    }
 }

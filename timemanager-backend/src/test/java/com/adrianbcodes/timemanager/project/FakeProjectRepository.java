@@ -30,18 +30,15 @@ public class FakeProjectRepository implements ProjectRepository{
         return projects.values().stream().toList();
     }
 
-
-    //TODO
     @Override
     public List<Project> getAllProjectsOfParticipantWithUsername(String username) {
-        List<Project> filteredProjects = projects.values()
+        return projects.values()
                 .stream()
                 .filter(project ->
                         project.getParticipants()
                                 .stream().anyMatch(user ->
                                         user.getUsername().equals(username)))
                 .toList();
-        return filteredProjects;
     }
 
     @Override

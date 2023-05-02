@@ -5,6 +5,9 @@ import com.adrianbcodes.timemanager.exceptions.AlreadyDeletedException;
 import com.adrianbcodes.timemanager.exceptions.BlankParameterException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
 import com.adrianbcodes.timemanager.exceptions.NotUniqueException;
+import com.adrianbcodes.timemanager.user.FakeUserRepository;
+import com.adrianbcodes.timemanager.user.User;
+import com.adrianbcodes.timemanager.user.UserExample;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,7 +22,7 @@ class ProjectServiceTest {
 
     @BeforeEach
     void init() {
-        projectService = new ProjectService(new FakeProjectRepository());
+        projectService = new ProjectService(new FakeProjectRepository(), new FakeUserRepository());
     }
 
     @Test
@@ -166,5 +169,24 @@ class ProjectServiceTest {
         var exception = catchThrowable(() -> projectService.deleteProjectById(project.getId()));
         //then
         assertThat(exception).isInstanceOf(AlreadyDeletedException.class);
+    }
+
+    //TODO
+    @Test
+    void addParticipant() {
+    }
+
+    @Test
+    void removeParticipant() {
+    }
+
+    @Test
+    void getAllProjectsOfParticipantWithUsername() {
+        //given
+        User user = UserExample.getUser1();
+        //when
+        var result = projectService.getAllProjectsOfParticipantWithUsername(user.getUsername());
+        //then
+        assertThat(result).isEqualTo(user.getProjects().stream().toList());
     }
 }

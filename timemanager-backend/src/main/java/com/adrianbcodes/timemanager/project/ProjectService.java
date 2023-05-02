@@ -7,7 +7,11 @@ import com.adrianbcodes.timemanager.exceptions.BlankParameterException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
 import com.adrianbcodes.timemanager.exceptions.NotUniqueException;
 import com.adrianbcodes.timemanager.user.User;
-import org.springframework.data.domain.*;
+import com.adrianbcodes.timemanager.user.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,9 +19,12 @@ import java.util.Set;
 
 public class ProjectService {
     private final ProjectRepository projectRepository;
-    public ProjectService(ProjectRepository projectRepository) {
+    private final UserRepository userRepository;
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository) {
         this.projectRepository = projectRepository;
+        this.userRepository = userRepository;
     }
+
 
     public List<Project> getAllProjects(){
         return projectRepository.getAllProjects().stream().filter(project -> project.getStatus().equals(StatusEnum.ACTIVE)).toList();
@@ -53,26 +60,34 @@ public class ProjectService {
     }
 
     public Long addParticipant(Long id, User userToAdd) {
-        Project project = this.getProjectById(id);
+        Project project = getProjectById(id);
+        Set<Project> projects = userToAdd.getProjects();
+        projects.add(project);
+        userToAdd.setProjects(projects);
         Set<User> participants = project.getParticipants();
         participants.add(userToAdd);
         project.setParticipants(participants);
-        this.saveProject(project);
+        userRepository.saveUser(userToAdd);
+        projectRepository.saveProject(project);
 
         return project.getId();
     }
 
     public Long removeParticipant(Long id, User userToRemove) {
-        Project project = this.getProjectById(id);
+        Project project = getProjectById(id);
         Set<User> participants = project.getParticipants();
         participants.remove(userToRemove);
         project.setParticipants(participants);
-        this.saveProject(project);
+        Set<Project> projects = userToRemove.getProjects();
+        projects.remove(project);
+        userToRemove.setProjects(projects);
+        userRepository.saveUser(userToRemove);
+        projectRepository.saveProject(project);
 
         return project.getId();
     }
 
-    public List<Project> getProjectsByUserUsername(String username){
+    public List<Project> getAllProjectsOfParticipantWithUsername(String username){
         return projectRepository.getAllProjectsOfParticipantWithUsername(username);
     }
 

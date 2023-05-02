@@ -1,25 +1,24 @@
 package com.adrianbcodes.timemanager.project;
 
-import com.adrianbcodes.timemanager.common.SortMapper;
 import com.adrianbcodes.timemanager.common.StatusEnum;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Predicate;
+import lombok.NonNull;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 public interface SqlProjectRepository extends ProjectRepository, JpaRepository<Project, Long>, QuerydslPredicateExecutor<Project> {
 
-    Page<Project> findAll(Predicate predicate, Pageable pageable);
-    List<Project> findAll(Predicate predicate);
+    @NonNull
+    Page<Project> findAll(@NonNull Predicate predicate, @NonNull Pageable pageable);
+    @NonNull
+    List<Project> findAll(@NonNull Predicate predicate);
     List<Project> findAllByNameAndStatus(String name, StatusEnum status);
 
     @Override

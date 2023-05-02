@@ -1,6 +1,6 @@
 package com.adrianbcodes.timemanager.user;
 
-import com.querydsl.core.types.Predicate;
+import com.adrianbcodes.timemanager.common.StatusEnum;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,15 +24,27 @@ public class FakeUserRepository implements UserRepository{
     }
 
     @Override
+    public List<User> saveAllUsers(List<User> users) {
+        users.forEach(this::saveUser);
+        return users
+                .stream()
+                .mapToLong(User::getId)
+                .mapToObj(i -> getUserById(i)
+                        .orElseThrow(() ->
+                                new RuntimeException(String.format("User with id %d not found", i))))
+                .toList();
+    }
+
+    @Override
     public List<User> getAllUsers() {
-        return users.values().stream().toList();
+        return users.values().stream().filter(user -> user.getStatus().equals(StatusEnum.ACTIVE)).toList();
     }
 
     @Override
     public List<User> getUsersReadyToAddToProject(Long projectId) {
         return users.values()
                 .stream()
-                .filter(user -> user.getProjects().stream().anyMatch(project -> project.getId().equals(projectId)))
+                .filter(user -> user.getProjects().stream().noneMatch(project -> project.getId().equals(projectId)))
                 .toList();
     }
 
