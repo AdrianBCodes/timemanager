@@ -1,5 +1,6 @@
 package com.adrianbcodes.timemanager.trackerEvent;
 
+import com.adrianbcodes.timemanager.common.SortMapper;
 import com.adrianbcodes.timemanager.exceptions.UnauthorizedException;
 import com.adrianbcodes.timemanager.exceptions.NotFoundException;
 import org.springframework.data.domain.Page;
@@ -22,7 +23,7 @@ public class TrackerEventService {
     Page<TrackerEvent> getAllTrackerEventsPagedAndFiltered(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, String date, List<Long> usersIds, int page, int size, String sort){
         List<Sort.Order> orders = new ArrayList<>();
         String[] _sort = sort.split(",");
-        orders.add(new Sort.Order(getSortDirection(_sort[1]), _sort[0]));
+        orders.add(new Sort.Order(SortMapper.getSortDirection(_sort[1]), _sort[0]));
 
         Pageable pageable = PageRequest.of(page,size, Sort.by(orders));
 
@@ -32,7 +33,7 @@ public class TrackerEventService {
     List<TrackerEvent> getAllTrackerEventsFilteredAndSorted(String description, List<Long> projectsIds, List<Long> clientsIds, List<Long> tasksIds, Long duration, String date, List<Long> usersIds, String sort){
         List<Sort.Order> orders = new ArrayList<>();
         String[] _sort = sort.split(",");
-        orders.add(new Sort.Order(getSortDirection(_sort[1]), _sort[0]));
+        orders.add(new Sort.Order(SortMapper.getSortDirection(_sort[1]), _sort[0]));
 
         return trackerEventRepository.getAllTrackerEventsFilteredAndSorted(description, projectsIds, clientsIds, tasksIds, duration, date, usersIds, Sort.by(orders));
     }
@@ -58,14 +59,5 @@ public class TrackerEventService {
         }
 
         return trackerEventRepository.getAllTrackerEventsFilteredByUsernameAndDate(userDetails.getUsername(), date);
-    }
-
-    private Sort.Direction getSortDirection(String direction) {
-        if (direction.equals("asc")) {
-            return Sort.Direction.ASC;
-        } else if (direction.equals("desc")) {
-            return Sort.Direction.DESC;
-        }
-        return Sort.Direction.ASC;
     }
 }

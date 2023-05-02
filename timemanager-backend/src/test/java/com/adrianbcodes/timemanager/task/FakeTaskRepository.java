@@ -16,13 +16,14 @@ public class FakeTaskRepository implements TaskRepository {
     }
 
     @Override
-    public Page<Task> getAllTasksByNameLikeAndDescriptionLikeAndProject_Id(String name, String description, Long projectId, Pageable pageable) {
+    public Page<Task> getAllActiveTasksByNameLikeAndDescriptionLikeAndProject_Id(String name, String description, Long projectId, Pageable pageable) {
         List<Task> filteredTasks = tasks.values()
                 .stream()
                 .filter(task ->
                         task.getName().contains(name) &&
                         task.getDescription().contains(description) &&
-                        task.getProject().getId().equals(projectId))
+                        task.getProject().getId().equals(projectId) &&
+                        task.getStatus().equals(StatusEnum.ACTIVE))
                 .toList();
         return new PageImpl<>(filteredTasks, pageable, filteredTasks.size());
     }
@@ -42,11 +43,12 @@ public class FakeTaskRepository implements TaskRepository {
     }
 
     @Override
-    public List<Task> getAllTasksByNameAndStatus(String name, StatusEnum status) {
+    public List<Task> getAllTasksByNameAndProjectIdAndStatus(String name, Long projectId, StatusEnum status) {
         return tasks.values()
                 .stream()
                 .filter(task ->
                         task.getName().equals(name) &&
+                        task.getProject().getId().equals(projectId) &&
                         task.getStatus().equals(status))
                 .toList();
     }

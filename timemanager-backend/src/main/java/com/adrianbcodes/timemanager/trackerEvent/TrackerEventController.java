@@ -114,7 +114,7 @@ public class TrackerEventController {
         }
 
         if(userDetails.getAuthorities().stream().anyMatch(r -> r.getAuthority().equals("ROLE_USER"))){
-            return ResponseEntity.ok(projectService.getProjectsByUserUsername(userDetails.getUsername()).stream().map(Project::convertToProjectDTO).toList());
+            return ResponseEntity.ok(projectService.getAllProjectsOfParticipantWithUsername(userDetails.getUsername()).stream().map(Project::convertToProjectDTO).toList());
         }
         return ResponseEntity.ok(projectService.getAllProjects().stream().map(Project::convertToProjectDTO).toList());
     }

@@ -15,10 +15,12 @@ public interface SqlTaskRepository extends TaskRepository, JpaRepository<Task, L
 
     List<Task> findByProject_Id(Long projectId);
 
-    List<Task> findByNameAndStatus(String name, StatusEnum status);
+    List<Task> findByNameAndProject_IdAndStatus(String name, Long id, StatusEnum status);
+
+
 
     @Override
-    default Page<Task> getAllTasksByNameLikeAndDescriptionLikeAndProject_Id(String name, String description, Long projectId, Pageable pageable){
+    default Page<Task> getAllActiveTasksByNameLikeAndDescriptionLikeAndProject_Id(String name, String description, Long projectId, Pageable pageable){
         return this.findByNameContainsIgnoreCaseAndDescriptionContainsIgnoreCaseAndProject_IdAndStatus(name, description, projectId, StatusEnum.ACTIVE ,pageable);
     }
     @Override
@@ -37,8 +39,8 @@ public interface SqlTaskRepository extends TaskRepository, JpaRepository<Task, L
     }
 
     @Override
-    default List<Task> getAllTasksByNameAndStatus(String name, StatusEnum status){
-        return this.findByNameAndStatus(name, status);
+    default List<Task> getAllTasksByNameAndProjectIdAndStatus(String name, Long projectId, StatusEnum status){
+        return this.findByNameAndProject_IdAndStatus(name, projectId, status);
     }
 
     @Override
