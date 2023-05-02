@@ -9,6 +9,8 @@ import java.util.Optional;
 public interface UserRepository {
     Page<User> getAllUsersPagedAndFiltered(String name, String surname, String email, Long projectId, Pageable pageable);
 
+    List<User> saveAllUsers(List<User> users);
+
     List<User> getAllUsers();
 
     List<User> getUsersReadyToAddToProject(Long projectId);
